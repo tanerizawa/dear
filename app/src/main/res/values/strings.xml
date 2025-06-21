@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Dear Diary</string>
+
+    <!-- Auth -->
+    <string name="login_title">Login</string>
+    <string name="register_title">Register</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="username_label">Username</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
+    <string name="login_to_register_prompt">Belum punya akun? Register</string>
+    <string name="register_to_login_prompt">Sudah punya akun? Login</string>
+
+    <!-- Main Navigation -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_growth">Pertumbuhan</string>
+    <string name="nav_services">Layanan</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- Home Screen -->
+    <string name="home_new_entry_button_desc">Entri Baru</string>
+    <string name="home_empty_state">Belum ada entri jurnal.\nTekan \'+\' untuk memulai.</string>
+    <string name="home_error_state">Gagal memuat data. %1$s</string>
+
+    <!-- Journal Editor -->
+    <string name="editor_new_entry_title">Entri Baru</string>
+    <string name="editor_title_label">Judul</string>
+    <string name="editor_content_label">Apa yang kamu rasakan?</string>
+    <string name="editor_save_button_desc">Simpan</string>
+    <string name="editor_save_button">Simpan</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profil</string>
+    <string name="profile_logout_button">Logout</string>
+
+</resources>
