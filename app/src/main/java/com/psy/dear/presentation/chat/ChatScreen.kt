@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.psy.dear.domain.model.ChatMessage // Pastikan untuk mengimpor model domain Anda
-import com.psy.dear.domain.model.SenderType
 
 @Composable
 fun ChatScreen(
@@ -145,7 +144,8 @@ fun ChatInputBar(
 fun ChatMessageItem(message: ChatMessage) {
     // Tampilan sederhana untuk item chat, bisa dikembangkan lebih lanjut
     // dengan gelembung chat (chat bubble)
-    val alignment = if (message.senderType == SenderType.USER) Alignment.CenterEnd else Alignment.CenterStart
+    // Gunakan peran ("role") pesan untuk menentukan perataan
+    val alignment = if (message.role == "user") Alignment.CenterEnd else Alignment.CenterStart
     Box(
         modifier = Modifier
             .fillMaxWidth()
