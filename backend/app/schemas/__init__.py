@@ -1,4 +1,4 @@
-from .user import UserBase, UserCreate, UserInDB, UserPublic
+from .user import UserBase, UserCreate, UserUpdate, UserInDB, UserPublic
 from .journal import JournalBase, JournalCreate, JournalUpdate, JournalInDB
 from .token import Token, TokenPayload
 from .chat import ChatMessage, ChatResponse
@@ -6,6 +6,7 @@ from .chat import ChatMessage, ChatResponse
 __all__ = [
     "UserBase",
     "UserCreate",
+    "UserUpdate",
     "UserInDB",
     "UserPublic",
     "JournalBase",
