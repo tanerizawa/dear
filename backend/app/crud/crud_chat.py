@@ -1,4 +1,3 @@
-# File baru: backend/app/crud/crud_chat.py
 
 from .base import CRUDBase
 from app.models.chat import ChatMessage

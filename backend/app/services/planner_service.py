@@ -1,4 +1,3 @@
-# File baru: backend/app/services/planner_service.py
 
 import httpx
 import json

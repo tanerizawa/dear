@@ -1,4 +1,3 @@
-# File baru: backend/app/services/generator_service.py
 
 import httpx
 import structlog
