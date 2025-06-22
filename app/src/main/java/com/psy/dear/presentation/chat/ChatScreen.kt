@@ -29,14 +29,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import kotlinx.coroutines.flow.collectLatest
 import com.psy.dear.domain.model.ChatMessage // Pastikan untuk mengimpor model domain Anda
+import com.psy.dear.presentation.chat.ChatUiEvent
 
 @Composable
 fun ChatScreen(
+    navController: NavController,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
     val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                ChatUiEvent.NavigateToLogin -> {
+                    navController.navigate("login") {
+                        popUpTo("main_flow") { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
 
     // Scroll otomatis ke item terbaru
     LaunchedEffect(uiState.messages.size) {
