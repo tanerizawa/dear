@@ -50,6 +50,9 @@ The backend reads several variables from the environment:
 
 - `DATABASE_URL` – SQLAlchemy database URL (defaults to SQLite `sqlite:///./test.db`).
 - `SECRET_KEY` – secret key used for JWT creation (defaults to `supersecretkey`).
+- `OPENROUTER_API_KEY` – API key for the OpenRouter chat service.
+- `PLANNER_MODEL_NAME` – model name used by the conversation planner.
+- `GENERATOR_MODEL_NAME` – model name used by the response generator.
 
 ## Usage
 

@@ -7,3 +7,5 @@ This document lists outstanding tasks and ideas for future development. Feel fre
 - Provide a `requirements.txt` for the backend along with setup instructions so the API can be run independently.
 - Expand unit and UI test coverage for both the Android app and the backend.
 - Remove any leftover shell prompt lines in existing files.
+- Document environment variables for the new AI chat features in the README.
+
