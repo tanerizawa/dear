@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
 import com.psy.dear.domain.use_case.chat.SendMessageUseCase
+import com.psy.dear.domain.model.ChatMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,7 +69,7 @@ class ChatViewModel @Inject constructor(
 }
 
 data class ChatUiState(
-    val messages: List<Any> = emptyList(), // Use a proper domain model
+    val messages: List<ChatMessage> = emptyList(),
     val currentMessage: String = "",
     val isSending: Boolean = false,
     val error: String? = null
