@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
@@ -22,11 +21,12 @@ def register(
 
 @router.post("/login", response_model=schemas.Token)
 def login(
+    *,
     db: Session = Depends(get_db),
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    login_in: schemas.UserLogin,
 ):
-    user = crud.user.get_by_email(db, email=form_data.username)
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    user = crud.user.get_by_email(db, email=login_in.email)
+    if not user or not verify_password(login_in.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
     access_token = create_access_token(user.id)
