@@ -72,26 +72,14 @@ fun ChatScreen(
                 )
             }
 
-            if (uiState.isLoadingHistory) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                    CircularProgressIndicator()
-                }
-            } else {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp)
-                ) {
-                    items(uiState.messages) { message ->
-                        ChatMessageItem(message = message)
-                    }
-                    // Opsional: tambahkan item untuk indikator mengetik
-                    if (uiState.isBotTyping) {
-                        item {
-                            TypingIndicator()
-                        }
-                    }
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
+                items(uiState.messages) { message ->
+                    ChatMessageItem(message = message)
                 }
             }
         }
