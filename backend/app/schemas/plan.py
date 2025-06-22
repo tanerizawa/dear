@@ -1,4 +1,3 @@
-# File baru: backend/app/schemas/plan.py
 
 from enum import Enum
 from pydantic import BaseModel, Field
