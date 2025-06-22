@@ -55,7 +55,10 @@ class ChatViewModel @Inject constructor(
                         // For now, let's assume we need to refetch or the response gives us what we need
                     }
                     is Result.Error -> {
-                        uiState = uiState.copy(error = result.message ?: "An unknown error occurred")
+                        uiState = uiState.copy(error = result.exception?.message ?: "An unknown error occurred")
+                    }
+                    is Result.Loading -> {
+                        // No-op: loading state is handled outside this scope
                     }
                 }
             } finally {
