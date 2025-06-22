@@ -16,12 +16,29 @@ class SyncJournalsUseCase @Inject constructor(private val repo: JournalRepositor
 }
 
 class SaveJournalUseCase @Inject constructor(private val repo: JournalRepository) {
-    suspend operator fun invoke(title: String, content: String, mood: String): Result<Unit> {
+    suspend operator fun invoke(
+        id: String? = null,
+        title: String,
+        content: String,
+        mood: String
+    ): Result<Unit> {
         if (title.isBlank() || content.isBlank()) {
             return Result.Error(IllegalArgumentException("Judul dan konten tidak boleh kosong."))
         }
-        return repo.createJournal(title, content, mood)
+        return if (id == null) {
+            repo.createJournal(title, content, mood)
+        } else {
+            repo.updateJournal(id, title, content, mood)
+        }
     }
+}
+
+class GetJournalByIdUseCase @Inject constructor(private val repo: JournalRepository) {
+    operator fun invoke(id: String): Flow<Journal?> = repo.getJournalById(id)
+}
+
+class DeleteJournalUseCase @Inject constructor(private val repo: JournalRepository) {
+    suspend operator fun invoke(id: String): Result<Unit> = repo.deleteJournal(id)
 }
 
 class GetGrowthStatisticsUseCase @Inject constructor(private val repo: JournalRepository) {

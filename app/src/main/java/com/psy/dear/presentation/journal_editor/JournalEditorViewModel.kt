@@ -67,13 +67,13 @@ class JournalEditorViewModel @Inject constructor(
         _content.value = newContent
     }
 
-    fun saveJournal() {
+    fun saveJournal(title: String, content: String, mood: String) {
         viewModelScope.launch {
             val result = saveJournalUseCase(
                 id = currentJournalId,
-                title = title.value,
-                content = content.value,
-                mood = mood.value
+                title = title,
+                content = content,
+                mood = mood
             )
             when (result) {
                 is Result.Success -> _eventFlow.emit(EditorEvent.SaveSuccess)
