@@ -17,7 +17,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://ganti.dengan.url.backend.anda/"
+    // Base URL for the FastAPI backend. Adjust as needed for your environment.
+    // Use 10.0.2.2 when running on an Android emulator to reach localhost.
+    private const val BASE_URL = "http://10.0.2.2:8000/api/v1/"
 
     @Provides
     @Singleton
