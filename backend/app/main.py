@@ -1,6 +1,5 @@
 from app.api.api import api_router
 from fastapi import FastAPI
-from app.api.api import api_router
 
 app = FastAPI(title="Dear Diary API")
 
