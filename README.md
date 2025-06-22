@@ -31,10 +31,10 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-2. Install dependencies (FastAPI, SQLAlchemy and others):
+2. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 3. Start the development server:
