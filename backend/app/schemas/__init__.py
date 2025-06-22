@@ -17,5 +17,5 @@ __all__ = [
     "Token",
     "TokenPayload",
     "ChatMessage",
-    "ChatResponse",
 ]
+

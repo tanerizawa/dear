@@ -7,18 +7,16 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
+    # API keys and model configuration for the AI chat features
+    OPENROUTER_API_KEY: str | None = None
+    PLANNER_MODEL_NAME: str = "mistralai/mistral-7b-instruct"
+    GENERATOR_MODEL_NAME: str = "google/gemma-7b-it"
+    APP_SITE_URL: str = "https://bizmark.id"
+    APP_NAME: str = "Dear Diary"
+
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
+
 
 settings = Settings()
-
-# TAMBAHKAN DI BAWAH INI
-OPENROUTER_API_KEY: str
-PLANNER_MODEL_NAME: str = "mistralai/mistral-7b-instruct"
-GENERATOR_MODEL_NAME: str = "google/gemma-7b-it"
-APP_SITE_URL: str = "https://bizmark.id"
-APP_NAME: str = "Dear Diary"
-
-class Config:
-    env_file = ".env"
-    env_file_encoding = "utf-8"
