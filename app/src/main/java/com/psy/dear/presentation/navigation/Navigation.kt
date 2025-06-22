@@ -35,6 +35,10 @@ sealed class Screen(val route: String, val title: String? = null, val icon: Imag
     object JournalEditor : Screen("journal_editor?journalId={journalId}") {
         fun createRoute(journalId: String?): String = "journal_editor?journalId=$journalId"
     }
+
+    object JournalDetail : Screen("journal_detail/{journalId}") {
+        fun createRoute(journalId: String): String = "journal_detail/$journalId"
+    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
