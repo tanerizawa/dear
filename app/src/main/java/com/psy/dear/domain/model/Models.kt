@@ -21,6 +21,13 @@ data class GrowthStatistics(
     val averageSentiment: Double
 )
 
+data class ChatMessage(
+    val id: String,
+    val role: String,
+    val content: String,
+    val timestamp: OffsetDateTime
+)
+
 // Models for Tests
 data class TestOption(val text: String, val value: Int)
 
