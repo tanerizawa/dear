@@ -20,3 +20,7 @@ class UserInDB(UserBase):
 
 class UserPublic(UserBase):
     id: int
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
