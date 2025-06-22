@@ -37,10 +37,11 @@ source venv/bin/activate
 pip install -r backend/requirements.txt
 ```
 
-3. Start the development server:
+3. Start the development server **from inside** the `backend/` directory to avoid
+   `ModuleNotFoundError`:
 
 ```bash
-uvicorn app.main:app --reload
+cd backend && uvicorn app.main:app --reload
 ```
 
 ### Environment Variables
