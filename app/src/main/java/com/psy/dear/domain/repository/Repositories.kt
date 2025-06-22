@@ -13,8 +13,11 @@ interface AuthRepository {
 
 interface JournalRepository {
     fun getJournals(): Flow<List<Journal>>
+    fun getJournalById(id: String): Flow<Journal?>
     suspend fun syncJournals(): Result<Unit>
     suspend fun createJournal(title: String, content: String, mood: String): Result<Unit>
+    suspend fun updateJournal(id: String, title: String, content: String, mood: String): Result<Unit>
+    suspend fun deleteJournal(id: String): Result<Unit>
     suspend fun getGrowthStatistics(): Result<GrowthStatistics>
 }
 

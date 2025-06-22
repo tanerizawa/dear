@@ -49,11 +49,20 @@ class JournalRepositoryImpl @Inject constructor(
     private val dao: JournalDao
 ) : JournalRepository {
     override fun getJournals(): Flow<List<Journal>> = dao.getAll().map { it.map { entity -> entity.toDomain() } }
+    override fun getJournalById(id: String): Flow<Journal?> = dao.getById(id).map { it?.toDomain() }
     override suspend fun syncJournals(): Result<Unit> = try {
         api.getJournals().forEach { dao.insert(it.toEntity()) }; Result.Success(Unit)
     } catch (e: Exception) { Result.Error(e) }
     override suspend fun createJournal(title: String, content: String, mood: String): Result<Unit> = try {
         val response = api.createJournal(CreateJournalRequest(title, content, mood)); dao.insert(response.toEntity()); Result.Success(Unit)
+    } catch (e: Exception) { Result.Error(e) }
+    override suspend fun updateJournal(id: String, title: String, content: String, mood: String): Result<Unit> = try {
+        val existing = dao.getById(id).first() ?: return Result.Error(IllegalArgumentException("Journal not found"))
+        dao.insert(existing.copy(title = title, content = content, mood = mood))
+        Result.Success(Unit)
+    } catch (e: Exception) { Result.Error(e) }
+    override suspend fun deleteJournal(id: String): Result<Unit> = try {
+        dao.deleteById(id); Result.Success(Unit)
     } catch (e: Exception) { Result.Error(e) }
     override suspend fun getGrowthStatistics(): Result<GrowthStatistics> = try {
         val journals = dao.getAll().first()
