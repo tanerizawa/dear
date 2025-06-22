@@ -56,11 +56,21 @@ class JournalRepositoryImpl @Inject constructor(
     override suspend fun createJournal(title: String, content: String, mood: String): Result<Unit> = try {
         val response = api.createJournal(CreateJournalRequest(title, content, mood)); dao.insert(response.toEntity()); Result.Success(Unit)
     } catch (e: Exception) { Result.Error(e) }
-    override suspend fun updateJournal(id: String, title: String, content: String, mood: String): Result<Unit> = try {
-        val existing = dao.getById(id).first() ?: return Result.Error(IllegalArgumentException("Journal not found"))
-        dao.insert(existing.copy(title = title, content = content, mood = mood))
-        Result.Success(Unit)
-    } catch (e: Exception) { Result.Error(e) }
+    override suspend fun updateJournal(
+        id: String,
+        title: String,
+        content: String,
+        mood: String
+    ): Result<Unit> {
+        return try {
+            val existing = dao.getById(id).first()
+                ?: return Result.Error(IllegalArgumentException("Journal not found"))
+            dao.insert(existing.copy(title = title, content = content, mood = mood))
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
     override suspend fun deleteJournal(id: String): Result<Unit> = try {
         dao.deleteById(id); Result.Success(Unit)
     } catch (e: Exception) { Result.Error(e) }
