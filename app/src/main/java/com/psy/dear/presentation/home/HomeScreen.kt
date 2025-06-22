@@ -56,7 +56,7 @@ fun HomeScreen(
                     items(state.journals, key = { it.id }) { journal ->
                         JournalItem(
                             journal = journal,
-                            onClick = { /* TODO: Navigate to detail */ }
+                            onClick = { navController.navigate(Screen.JournalDetail.createRoute(journal.id)) }
                         )
                     }
                 }

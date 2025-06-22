@@ -11,6 +11,7 @@ import com.psy.dear.presentation.chat.ChatScreen
 import com.psy.dear.presentation.growth.GrowthScreen
 import com.psy.dear.presentation.home.HomeScreen
 import com.psy.dear.presentation.journal_editor.JournalEditorScreen
+import com.psy.dear.presentation.journal_detail.JournalDetailScreen
 import com.psy.dear.presentation.navigation.Screen
 import com.psy.dear.presentation.profile.ProfileScreen
 import com.psy.dear.presentation.services.ServicesScreen
@@ -55,6 +56,7 @@ fun MainScreen() {
             composable(Screen.Profile.route) { ProfileScreen(navController = mainNavController) }
 
             composable(Screen.JournalEditor.route) { JournalEditorScreen(navController = mainNavController) }
+            composable(Screen.JournalDetail.route) { JournalDetailScreen(navController = mainNavController) }
         }
     }
 }
