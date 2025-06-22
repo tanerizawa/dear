@@ -1,110 +1,178 @@
 package com.psy.dear.presentation.chat
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.psy.dear.domain.model.ChatMessage
+import com.psy.dear.domain.model.ChatMessage // Pastikan untuk mengimpor model domain Anda
+import com.psy.dear.domain.model.SenderType
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
+    val uiState = viewModel.uiState
     val listState = rememberLazyListState()
 
-    // Auto-scroll to the bottom when new messages arrive
-    LaunchedEffect(state.messages.size) {
-        if (state.messages.isNotEmpty()) {
-            listState.animateScrollToItem(state.messages.size - 1)
+    // Scroll otomatis ke item terbaru
+    LaunchedEffect(uiState.messages.size) {
+        if (uiState.messages.isNotEmpty()) {
+            listState.animateScrollToItem(uiState.messages.size - 1)
         }
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Asisten AI") }) }
-    ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(state.messages) { message ->
-                    MessageBubble(message = message)
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            ChatInputBar(
+                text = uiState.currentMessage,
+                onTextChange = { viewModel.onEvent(ChatEvent.OnMessageChange(it)) },
+                onSendClick = { viewModel.onEvent(ChatEvent.SendMessage) },
+                isSending = uiState.isSending
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            if (uiState.error != null) {
+                Text(
+                    text = uiState.error,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+            }
+
+            if (uiState.isLoadingHistory) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    items(uiState.messages) { message ->
+                        ChatMessageItem(message = message)
+                    }
+                    // Opsional: tambahkan item untuk indikator mengetik
+                    if (uiState.isBotTyping) {
+                        item {
+                            TypingIndicator()
+                        }
+                    }
                 }
             }
-            MessageInput(
-                onSendMessage = { viewModel.sendMessage(it) },
-                isLoading = state.isLoading
-            )
         }
     }
 }
 
 @Composable
-fun MessageBubble(message: ChatMessage) {
-    val isUser = message.role == "user"
-    val alignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
-    val bubbleColor = if (isUser) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+fun ChatInputBar(
+    text: String,
+    onTextChange: (String) -> Unit,
+    onSendClick: () -> Unit,
+    isSending: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = onTextChange,
+            modifier = Modifier.weight(1f),
+            placeholder = { Text("Ketik pesanmu...") },
+            enabled = !isSending, // Nonaktifkan input saat pesan sedang dikirim
+            maxLines = 5
+        )
+        Spacer(modifier = Modifier.width(8.dp))
 
+        Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+            if (isSending) {
+                CircularProgressIndicator(strokeWidth = 2.dp)
+            } else {
+                IconButton(
+                    onClick = onSendClick,
+                    enabled = text.isNotBlank() // Tombol hanya aktif jika ada teks
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send Message",
+                        tint = if (text.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ChatMessageItem(message: ChatMessage) {
+    // Tampilan sederhana untuk item chat, bisa dikembangkan lebih lanjut
+    // dengan gelembung chat (chat bubble)
+    val alignment = if (message.senderType == SenderType.USER) Alignment.CenterEnd else Alignment.CenterStart
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         contentAlignment = alignment
     ) {
         Text(
             text = message.content,
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(bubbleColor)
-                .padding(12.dp)
+                .padding(8.dp)
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessageInput(onSendMessage: (String) -> Unit, isLoading: Boolean) {
-    var text by remember { mutableStateOf("") }
-
-    Surface(tonalElevation = 4.dp) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Ketik pesan...") },
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-            IconButton(
-                onClick = { if (text.isNotBlank()) { onSendMessage(text); text = "" } },
-                enabled = !isLoading
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                } else {
-                    Icon(Icons.Default.Send, contentDescription = "Kirim")
-                }
-            }
-        }
+fun TypingIndicator() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Text(
+            text = "Dear is typing...",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+        )
     }
 }

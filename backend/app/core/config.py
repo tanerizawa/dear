@@ -11,3 +11,14 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 settings = Settings()
+
+# TAMBAHKAN DI BAWAH INI
+OPENROUTER_API_KEY: str
+PLANNER_MODEL_NAME: str = "mistralai/mistral-7b-instruct"
+GENERATOR_MODEL_NAME: str = "google/gemma-7b-it"
+APP_SITE_URL: str = "https://bizmark.id"
+APP_NAME: str = "Dear Diary"
+
+class Config:
+    env_file = ".env"
+    env_file_encoding = "utf-8"
