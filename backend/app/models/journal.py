@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
+from app.models.user import User
 import datetime
 
 class Journal(Base):
