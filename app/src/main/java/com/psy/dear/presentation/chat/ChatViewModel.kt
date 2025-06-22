@@ -8,14 +8,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
-import com.psy.dear.domain.use_case.chat.ChatUseCases
+import com.psy.dear.domain.use_case.chat.SendMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val chatUseCases: ChatUseCases
+    private val sendMessageUseCase: SendMessageUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ChatUiState())
@@ -48,7 +48,7 @@ class ChatViewModel @Inject constructor(
                 // val optimisticUserMessage = ...
                 // uiState = uiState.copy(messages = uiState.messages + optimisticUserMessage)
 
-                when (val result = chatUseCases.sendMessage(messageToSend)) {
+                when (val result = sendMessageUseCase(messageToSend)) {
                     is Result.Success -> {
                         // TODO: Refresh chat history from a single source of truth (e.g., local db)
                         // For now, let's assume we need to refetch or the response gives us what we need
