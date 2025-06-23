@@ -32,12 +32,25 @@ async def handle_chat_message(
     crud.chat_message.create_with_owner(db, obj_in=user_message_obj, owner_id=current_user.id)
 
     # 2. Ambil riwayat chat & bangun konteks
-    history_db = crud.chat_message.get_multi_by_owner(db, owner_id=current_user.id, limit=6)
-    history_formatted = [{"role": msg.sender_type, "content": msg.content} for msg in reversed(history_db)]
+    history_db = crud.chat_message.get_multi_by_owner(
+        db, owner_id=current_user.id, limit=6
+    )
+
+    # List of {role, content} dicts for the GeneratorService
+    history_formatted = [
+        {"role": msg.sender_type, "content": msg.content}
+        for msg in reversed(history_db)
+    ]
+
+    # List of just message strings for the PlannerService
+    chat_history = [msg.content for msg in reversed(history_db)]
+
     latest_journal = get_latest_journal(db, user=current_user)
 
     # 3. Panggil Planner untuk mendapatkan rencana
-    conversation_plan = await planner.get_plan(chat_in.message, history_formatted, latest_journal)
+    conversation_plan = await planner.get_plan(
+        chat_in.message, chat_history, latest_journal
+    )
 
     # 4. Panggil Generator untuk mendapatkan respons final
     final_response = await generator.generate_response(conversation_plan, history_formatted, chat_in.message)
