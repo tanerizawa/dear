@@ -70,8 +70,7 @@ class ChatViewModel @Inject constructor(
 
                 when (val result = sendMessageUseCase(messageToSend)) {
                     is Result.Success -> {
-                        // Refresh chat history after a successful send
-                        uiState = uiState.copy(messages = getChatHistoryUseCase().first())
+                        // No additional action needed here, messages will be refreshed below
                     }
                     is Result.Error -> {
                         if (result.exception is UnauthorizedException) {
@@ -84,10 +83,11 @@ class ChatViewModel @Inject constructor(
                     }
                 }
             } finally {
-                // Stop loading state regardless of outcome
-                uiState = uiState.copy(isSending = false)
-                // TODO: Here you would ideally trigger a full refresh of the chat history
-                // from the local database which has been updated by the server response.
+                // Stop loading state regardless of outcome and refresh chat history
+                uiState = uiState.copy(
+                    isSending = false,
+                    messages = getChatHistoryUseCase().first()
+                )
             }
         }
     }
