@@ -41,7 +41,7 @@ class GeneratorService:
             return response.json()
 
     async def generate_response(
-        self, plan: ConversationPlan, history: List[Dict], user_message: str
+        self, plan: ConversationPlan, history: List[Dict]
     ) -> str:
         self.log.info("generating_response", technique=plan.technique.value)
 
@@ -52,6 +52,9 @@ class GeneratorService:
         chat_history_str = "\n".join(
             f"{msg['role']}: {msg['content']}" for msg in history
         )
+
+        # The user's latest message is the last item in the history list
+        user_message = history[-1]["content"] if history else ""
 
         prompt = (
             'Kamu adalah "Dear", teman bicara virtual premium yang suportif dan responsif secara emosional. '
@@ -67,7 +70,6 @@ class GeneratorService:
 
         messages = [{"role": "system", "content": prompt}]
         messages.extend(history)
-        messages.append({"role": "user", "content": user_message})
 
         try:
             data = await self._call_openrouter(
