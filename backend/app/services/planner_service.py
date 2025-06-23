@@ -26,21 +26,32 @@ class PlannerService:
             response.raise_for_status()
             return response.json()
 
-    async def plan_conversation_strategy(self, context: str, user_message: str) -> ConversationPlan:
+
+    async def get_plan(
+        self,
+        user_message: str,
+        chat_history: List[Dict[str, str]],
+        latest_journal: str,
+    ) -> ConversationPlan:
+        """Determine which counseling technique Dear should apply next."""
+
         self.log.info("planning_conversation", user_message=user_message)
 
-        available_techniques = ", ".join(f"'{t.value}'" for t in CommunicationTechnique if t != CommunicationTechnique.UNKNOWN)
+        available_techniques = ", ".join(
+            f"'{t.value}'" for t in CommunicationTechnique if t != CommunicationTechnique.UNKNOWN
+        )
 
-        prompt = f"""You are the 'director' persona. Your task is to choose one optimal communication technique from a given list to guide an empathetic AI assistant's response. Analyze the user's message within the provided context.
+        history_str = "\n".join(f"{m['role']}: {m['content']}" for m in chat_history)
 
-        Context: {context}
-        User Message: "{user_message}"
-
-        Based on the above, which of the following techniques is most appropriate for the next response?
-        Available techniques: [{available_techniques}]
-
-        Respond with a JSON object containing only one key: "technique". The value must be one of the available techniques.
-        """
+        prompt = (
+            "You are Dear's planning counselor. Choose the best next counseling "
+            "technique for Dear to use when replying.\n"
+            f"Strategies: [{available_techniques}]\n\n"
+            f"Latest journal entry: {latest_journal or 'None'}\n"
+            f"Chat history:\n{history_str}\n"
+            f"User message: {user_message}\n\n"
+            "Respond ONLY with a JSON object like {\"technique\": \"<name>\"}."
+        )
 
         messages = [{"role": "system", "content": prompt}]
 
@@ -49,12 +60,13 @@ class PlannerService:
             content = data["choices"][0]["message"]["content"]
             plan_data = json.loads(content)
 
-            # Validasi manual sederhana
-            if 'technique' not in plan_data or plan_data['technique'] not in [t.value for t in CommunicationTechnique]:
+            if (
+                "technique" not in plan_data
+                or plan_data["technique"] not in [t.value for t in CommunicationTechnique]
+            ):
                 raise ValueError("Invalid technique returned by AI")
 
             return ConversationPlan(**plan_data)
         except Exception as e:
             self.log.error("planner_service_error", error=str(e))
-            # Fallback jika planner gagal
             return ConversationPlan(technique=CommunicationTechnique.UNKNOWN)
