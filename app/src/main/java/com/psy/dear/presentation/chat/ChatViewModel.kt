@@ -8,10 +8,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
+import com.psy.dear.core.UnauthorizedException
 import com.psy.dear.domain.use_case.chat.SendMessageUseCase
 import com.psy.dear.domain.model.ChatMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +24,9 @@ class ChatViewModel @Inject constructor(
 
     var uiState by mutableStateOf(ChatUiState())
         private set
+
+    private val _eventFlow = MutableSharedFlow<ChatUiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
 
     fun onEvent(event: ChatEvent) {
         when (event) {
@@ -55,6 +61,9 @@ class ChatViewModel @Inject constructor(
                         // For now, let's assume we need to refetch or the response gives us what we need
                     }
                     is Result.Error -> {
+                        if (result.exception is UnauthorizedException) {
+                            _eventFlow.emit(ChatUiEvent.NavigateToLogin)
+                        }
                         uiState = uiState.copy(error = result.exception?.message ?: "An unknown error occurred")
                     }
                     is Result.Loading -> {
@@ -81,4 +90,8 @@ data class ChatUiState(
 sealed class ChatEvent {
     data class OnMessageChange(val message: String) : ChatEvent()
     object SendMessage : ChatEvent()
+}
+
+sealed class ChatUiEvent {
+    object NavigateToLogin : ChatUiEvent()
 }

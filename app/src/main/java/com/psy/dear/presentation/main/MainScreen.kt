@@ -50,7 +50,7 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) { HomeScreen(navController = mainNavController) }
-            composable(Screen.Chat.route) { ChatScreen() }
+            composable(Screen.Chat.route) { ChatScreen(navController = mainNavController) }
             composable(Screen.Growth.route) { GrowthScreen(navController = mainNavController) }
             composable(Screen.Services.route) { ServicesScreen(navController = mainNavController) }
             composable(Screen.Profile.route) { ProfileScreen(navController = mainNavController) }

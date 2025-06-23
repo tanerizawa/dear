@@ -10,6 +10,7 @@ import com.psy.dear.data.network.api.AuthApiService
 import com.psy.dear.data.network.api.ChatApiService
 import com.psy.dear.data.network.api.JournalApiService
 import com.psy.dear.data.network.api.UserApiService
+import com.psy.dear.core.UnauthorizedException
 import com.psy.dear.data.network.dto.ChatRequest
 import com.psy.dear.data.network.dto.CreateJournalRequest
 import com.psy.dear.data.network.dto.LoginRequest
@@ -26,6 +27,7 @@ import java.time.OffsetDateTime
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import retrofit2.HttpException
 import kotlin.math.roundToInt
 
 @Singleton
@@ -96,7 +98,8 @@ class UserRepositoryImpl @Inject constructor(
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
     private val api: ChatApiService,
-    private val dao: ChatMessageDao
+    private val dao: ChatMessageDao,
+    private val prefs: UserPreferencesRepository
 ) : ChatRepository {
     override fun getChatHistory(): Flow<List<ChatMessage>> = dao.getAll().map { it.map { entity -> entity.toDomain() } }
     override suspend fun sendMessage(message: String): Result<Unit> {
@@ -111,6 +114,13 @@ class ChatRepositoryImpl @Inject constructor(
             val assistantMessage = ChatMessage(UUID.randomUUID().toString(), "assistant", response.reply, OffsetDateTime.now())
             dao.insert(assistantMessage.toEntity())
             Result.Success(Unit)
+        } catch (e: HttpException) {
+            if (e.code() == 403) {
+                prefs.clearAuthToken()
+                Result.Error(UnauthorizedException())
+            } else {
+                Result.Error(e)
+            }
         } catch (e: Exception) {
             Result.Error(e)
         }
