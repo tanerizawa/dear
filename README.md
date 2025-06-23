@@ -56,6 +56,21 @@ The backend reads several variables from the environment:
 - `APP_SITE_URL` – site URL sent in OpenRouter requests for identification.
 - `APP_NAME` – application name reported to OpenRouter when making requests.
 
+To use the AI features you need an OpenRouter account. Sign up at
+[OpenRouter](https://openrouter.ai) and generate an API key from the dashboard.
+Example models that work well are `mistralai/mistral-7b-instruct` for the planner
+and `google/gemma-7b-it` for the generator.
+
+Create a `.env` file inside the `backend/` directory and define these variables:
+
+```bash
+OPENROUTER_API_KEY=<your-key>
+PLANNER_MODEL_NAME=mistralai/mistral-7b-instruct
+GENERATOR_MODEL_NAME=google/gemma-7b-it
+APP_SITE_URL=https://yourdomain.com
+APP_NAME=Dear Diary
+```
+
 ## Usage
 
 Run the backend and then launch the Android app. The app communicates with the API under `http://localhost:8000/api/v1`.
