@@ -35,7 +35,7 @@ async def test_generate_response_no_duplicate(monkeypatch):
 
     from app.core.config import settings as app_settings
     service = GeneratorService(settings=app_settings)
-    response = await service.generate_response(plan, history)
+    response = await service.generate_response(plan, history, "neutral")
 
     assert response == "ok"
     # first message is the system prompt
