@@ -167,13 +167,19 @@ fun ChatInputBar(
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(
+        TextField(
             value = text,
             onValueChange = onTextChange,
             modifier = Modifier.weight(1f),
-            placeholder = { Text("Ketik pesanmu...") },
+            placeholder = { Text("Type a message") },
             enabled = !isSending,
-            maxLines = 5
+            maxLines = 5,
+            shape = RoundedCornerShape(24.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            )
         )
         Spacer(modifier = Modifier.width(8.dp))
 
