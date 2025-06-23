@@ -45,11 +45,12 @@ class PlannerService:
         prompt = f"""
 Anda adalah konselor perencana untuk Dear. Analisis riwayat percakapan dan pesan pengguna, kemudian pilih SATU teknik komunikasi yang paling sesuai.
 
-Kategorikan pesan pengguna ke dalam salah satu dari empat tipe berikut:
+Kategorikan pesan pengguna ke dalam salah satu dari lima tipe berikut:
 1. Salam atau basa-basi.
 2. Curhat atau ungkapan perasaan.
 3. Pertanyaan informasi.
-4. Tidak jelas atau di luar konteks.
+4. Status C – Pertanyaan langsung tentang kamu. Untuk tipe ini, selalu balas dengan {{"technique": "information"}}.
+5. Tidak jelas atau di luar konteks.
 
 Gunakan toolbox teknik di bawah ini dan pilih satu strategi saja:
 {available_techniques}
