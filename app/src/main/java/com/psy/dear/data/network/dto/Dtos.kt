@@ -20,7 +20,10 @@ data class CreateJournalRequest(val title: String, val content: String, val mood
 
 // ChatDtos
 data class ChatRequest(val message: String)
-data class ChatResponse(val reply: String)
+data class ChatResponse(
+    @SerializedName("content")
+    val reply: String
+)
 
 // UserDtos
 data class UserProfileResponse(
