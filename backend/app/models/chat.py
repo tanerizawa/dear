@@ -1,4 +1,4 @@
-from enum import Enum  # <-- TAMBAHKAN BARIS INI
+from enum import Enum
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
