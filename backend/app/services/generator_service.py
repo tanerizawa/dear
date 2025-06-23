@@ -19,7 +19,9 @@ class GeneratorService:
             "paraphrasing": "rephrase the user's core message in your own words to show you are listening.",
             "reflecting": "briefly mirror the primary emotion you detect in the user's message.",
             "open_ended_questions": "ask a broad, open-ended question to invite the user to share more details if they wish.",
+            "closed_ended_questions": "ask a concise yes-or-no question to confirm a specific detail from the user's message.",
             "summarizing": "provide a brief, neutral summary of the key points the user has made.",
+            "confrontation": "gently point out a discrepancy you've noticed and invite the user to clarify.",
             "reassurance_encouragement": "offer a short, gentle, and non-specific message of reassurance or encouragement.",
             "unknown": "ask a simple, open-ended question like 'How are you feeling about that?' or 'Can you tell me more?'"
         }
