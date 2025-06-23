@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import android.util.Patterns
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,6 +20,7 @@ fun RegisterScreen(
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val isEmailValid by derivedStateOf { Patterns.EMAIL_ADDRESS.matcher(email).matches() }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
@@ -45,7 +47,11 @@ fun RegisterScreen(
             Spacer(Modifier.height(16.dp))
             OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(24.dp))
-            Button(onClick = { viewModel.register(username, email, password) }, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = { viewModel.register(username, email, password) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = isEmailValid
+            ) {
                 Text("Register")
             }
             TextButton(onClick = onBack) {
