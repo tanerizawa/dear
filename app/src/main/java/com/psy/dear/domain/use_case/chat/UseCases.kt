@@ -22,3 +22,16 @@ class SendMessageUseCase @Inject constructor(
         return repository.sendMessage(message)
     }
 }
+
+class DeleteMessageUseCase @Inject constructor(
+    private val repository: ChatRepository
+) {
+    suspend operator fun invoke(id: String): Result<Unit> = repository.deleteMessage(id)
+}
+
+class FlagMessageUseCase @Inject constructor(
+    private val repository: ChatRepository
+) {
+    suspend operator fun invoke(id: String, flagged: Boolean): Result<Unit> =
+        repository.flagMessage(id, flagged)
+}

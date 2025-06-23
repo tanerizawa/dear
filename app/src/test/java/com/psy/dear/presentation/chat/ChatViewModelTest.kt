@@ -6,6 +6,8 @@ import com.psy.dear.core.UnauthorizedException
 import com.psy.dear.data.repository.FakeChatRepository
 import com.psy.dear.domain.use_case.chat.GetChatHistoryUseCase
 import com.psy.dear.domain.use_case.chat.SendMessageUseCase
+import com.psy.dear.domain.use_case.chat.DeleteMessageUseCase
+import com.psy.dear.domain.use_case.chat.FlagMessageUseCase
 import com.psy.dear.util.TestCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -24,13 +26,22 @@ class ChatViewModelTest {
     private lateinit var fakeRepository: FakeChatRepository
     private lateinit var getChatHistoryUseCase: GetChatHistoryUseCase
     private lateinit var sendMessageUseCase: SendMessageUseCase
+    private lateinit var deleteMessageUseCase: DeleteMessageUseCase
+    private lateinit var flagMessageUseCase: FlagMessageUseCase
 
     @Before
     fun setUp() {
         fakeRepository = FakeChatRepository()
         getChatHistoryUseCase = GetChatHistoryUseCase(fakeRepository)
         sendMessageUseCase = SendMessageUseCase(fakeRepository)
-        viewModel = ChatViewModel(getChatHistoryUseCase, sendMessageUseCase)
+        deleteMessageUseCase = DeleteMessageUseCase(fakeRepository)
+        flagMessageUseCase = FlagMessageUseCase(fakeRepository)
+        viewModel = ChatViewModel(
+            getChatHistoryUseCase,
+            sendMessageUseCase,
+            deleteMessageUseCase,
+            flagMessageUseCase
+        )
     }
 
     @Test
