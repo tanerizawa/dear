@@ -12,18 +12,16 @@ class GeneratorService:
         self.api_base_url = "https://openrouter.ai/api/v1"
         self.log = structlog.get_logger(__name__)
 
-        # Definisikan TOOLBOX di sini
+        # Brief instructions for applying each communication technique
         self.TOOLBOX = {
-            "probing": "ask a short, gentle clarifying question to explore a specific part of the user's message.",
-            "clarifying": "confirm your understanding of the user's message to ensure you are on the same page.",
-            "paraphrasing": "rephrase the user's core message in your own words to show you are listening.",
-            "reflecting": "briefly mirror the primary emotion you detect in the user's message.",
-            "open_ended_questions": "ask a broad, open-ended question to invite the user to share more details if they wish.",
-            "closed_ended_questions": "ask a concise yes-or-no question to confirm a specific detail from the user's message.",
-            "summarizing": "provide a brief, neutral summary of the key points the user has made.",
-            "confrontation": "gently point out a discrepancy you've noticed and invite the user to clarify.",
-            "reassurance_encouragement": "offer a short, gentle, and non-specific message of reassurance or encouragement.",
-            "unknown": "ask a simple, open-ended question like 'How are you feeling about that?' or 'Can you tell me more?'"
+            "social_greeting": "start with a warm, friendly greeting to set a comfortable tone.",
+            "probing": "ask a short clarifying question to gently explore the user's message.",
+            "validation": "acknowledge that the user's feelings or viewpoint make sense.",
+            "empathetic": "show empathy so the user feels heard and understood.",
+            "reflection": "mirror back the main feeling or idea you heard.",
+            "summarizing": "briefly recap the key points shared by the user.",
+            "clarifying": "confirm your understanding of what the user said.",
+            "unknown": "ask a simple open question like 'Could you tell me more?'"
         }
 
     async def _call_openrouter(self, model: str, messages: List[Dict[str, str]]) -> Dict:

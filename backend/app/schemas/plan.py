@@ -1,18 +1,17 @@
-
 from enum import Enum
 from pydantic import BaseModel, Field
 
 class CommunicationTechnique(str, Enum):
+    """Enumeration of communication techniques Dear can apply."""
+
+    SOCIAL_GREETING = "social_greeting"
     PROBING = "probing"
-    CLARIFYING = "clarifying"
-    PARAPHRASING = "paraphrasing"
-    REFLECTING = "reflecting"
-    OPEN_ENDED_QUESTIONS = "open_ended_questions"
-    CLOSED_ENDED_QUESTIONS = "closed_ended_questions"
+    VALIDATION = "validation"
+    EMPATHETIC = "empathetic"
+    REFLECTION = "reflection"
     SUMMARIZING = "summarizing"
-    CONFRONTATION = "confrontation"
-    REASSURANCE_ENCOURAGEMENT = "reassurance_encouragement"
-    # Tambahkan 'UNKNOWN' sebagai fallback
+    CLARIFYING = "clarifying"
+    # Fallback option when the planner cannot determine the technique
     UNKNOWN = "unknown"
 
 class ConversationPlan(BaseModel):
