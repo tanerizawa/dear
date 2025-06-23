@@ -10,16 +10,10 @@ from app.services.generator_service import GeneratorService
 
 router = APIRouter()
 
-def build_context(db: Session, user: models.User) -> str:
-    """Membangun string konteks dari data pengguna."""
-    # Ambil 1 jurnal terakhir
+def get_latest_journal(db: Session, user: models.User) -> str:
+    """Return the latest journal content or empty string."""
     latest_journal = crud.journal.get_multi_by_owner(db, owner_id=user.id, limit=1)
-    journal_context = f"Latest journal entry: '{latest_journal[0].content}'" if latest_journal else "No recent journal entries."
-
-    # Tambahkan data profil jika ada
-    # profile_context = f"User profile (MBTI): {user.profile.mbti}" if user.profile else ""
-
-    return f"{journal_context}"
+    return latest_journal[0].content if latest_journal else ""
 
 @router.post("/", response_model=schemas.chat.ChatMessage)
 async def handle_chat_message(
@@ -40,10 +34,10 @@ async def handle_chat_message(
     # 2. Ambil riwayat chat & bangun konteks
     history_db = crud.chat_message.get_multi_by_owner(db, owner_id=current_user.id, limit=6)
     history_formatted = [{"role": msg.sender_type, "content": msg.content} for msg in reversed(history_db)]
-    context_str = build_context(db, user=current_user)
+    latest_journal = get_latest_journal(db, user=current_user)
 
     # 3. Panggil Planner untuk mendapatkan rencana
-    conversation_plan = await planner.plan_conversation_strategy(context_str, chat_in.message)
+    conversation_plan = await planner.get_plan(chat_in.message, history_formatted, latest_journal)
 
     # 4. Panggil Generator untuk mendapatkan respons final
     final_response = await generator.generate_response(conversation_plan, history_formatted, chat_in.message)
