@@ -115,8 +115,7 @@ fun ChatScreen(
                                 viewModel.onEvent(ChatEvent.ToggleSelection(message.id))
                             }
                         },
-                        onLongPress = { viewModel.onEvent(ChatEvent.EnterSelection(message.id)) },
-                        onDelete = { viewModel.onEvent(ChatEvent.DeleteMessage(message.id)) }
+                        onLongPress = { viewModel.onEvent(ChatEvent.EnterSelection(message.id)) }
                     )
                 }
             }
@@ -200,8 +199,7 @@ fun ChatMessageItem(
     selected: Boolean,
     selectionMode: Boolean,
     onClick: () -> Unit,
-    onLongPress: () -> Unit,
-    onDelete: () -> Unit
+    onLongPress: () -> Unit
 ) {
     // Tampilan sederhana untuk item chat, bisa dikembangkan lebih lanjut
     // dengan gelembung chat (chat bubble)
@@ -225,11 +223,6 @@ fun ChatMessageItem(
                     .padding(8.dp)
                     .weight(1f)
             )
-            if (!selectionMode) {
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
-                }
-            }
         }
     }
 }
