@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.psy.dear.presentation.chat.ChatBubbleTail
 import androidx.navigation.NavController
 import com.psy.dear.domain.model.ChatMessage
 import com.psy.dear.ui.theme.ChatAppBar
@@ -208,8 +209,7 @@ fun ChatMessageItem(
     onDelete: () -> Unit
 ) {
     val isUser = message.role == "user"
-    val alignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(onClick = onClick, onLongClick = onLongPress)
@@ -218,14 +218,17 @@ fun ChatMessageItem(
                 else Color.Transparent
             )
             .padding(vertical = 4.dp),
-        contentAlignment = alignment
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Bottom
     ) {
+        if (!isUser) ChatBubbleTail(color = OtherBubble, isUser = false)
         Surface(
             color = if (isUser) UserBubble else OtherBubble,
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(16.dp),
+            shadowElevation = 2.dp
         ) {
             Column(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
             ) {
                 Text(
@@ -241,6 +244,7 @@ fun ChatMessageItem(
                 )
             }
         }
+        if (isUser) ChatBubbleTail(color = UserBubble, isUser = true)
     }
 }
 
