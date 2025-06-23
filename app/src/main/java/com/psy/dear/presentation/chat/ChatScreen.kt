@@ -239,8 +239,7 @@ fun ChatMessageItem(
             ) {
                 Text(
                     text = message.content,
-                    color = Color.Black,
-                    modifier = Modifier.weight(1f, false)
+                    color = Color.Black
                 )
                 Text(
                     text = message.timestamp.format(DateTimeFormatter.ofPattern("HH:mm")),
