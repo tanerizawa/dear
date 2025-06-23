@@ -77,6 +77,14 @@ Run the backend and then launch the Android app. The app communicates with the A
 
 The chat endpoint now performs a basic emotion analysis on each message. The detected label is saved along with the chat history and influences the AI planner and generator prompts.
 
+## Running Tests
+
+```bash
+pip install -r backend/requirements.txt
+pip install pytest pytest-asyncio
+pytest backend/tests
+```
+
 ## Contributing
 
 Contributions are welcome! Please open issues or pull requests on GitHub. Make sure to format code and provide tests where relevant.
