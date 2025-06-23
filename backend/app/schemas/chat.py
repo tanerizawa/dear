@@ -1,11 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
+from app.models.chat import SenderType
 
 # Skema dasar untuk field yang sama di semua varian
 class ChatMessageBase(BaseModel):
     content: str
-    sender_type: str  # Anda bisa menggunakan Enum di sini jika mau
+    sender_type: SenderType
     ai_technique: Optional[str] = None
 
 
