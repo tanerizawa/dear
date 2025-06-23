@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -117,8 +116,7 @@ fun ChatScreen(
                             }
                         },
                         onLongPress = { viewModel.onEvent(ChatEvent.EnterSelection(message.id)) },
-                        onDelete = { viewModel.onEvent(ChatEvent.DeleteMessage(message.id)) },
-                        onFlag = { flag -> viewModel.onEvent(ChatEvent.FlagMessage(message.id, flag)) }
+                        onDelete = { viewModel.onEvent(ChatEvent.DeleteMessage(message.id)) }
                     )
                 }
             }
@@ -203,8 +201,7 @@ fun ChatMessageItem(
     selectionMode: Boolean,
     onClick: () -> Unit,
     onLongPress: () -> Unit,
-    onDelete: () -> Unit,
-    onFlag: (Boolean) -> Unit
+    onDelete: () -> Unit
 ) {
     // Tampilan sederhana untuk item chat, bisa dikembangkan lebih lanjut
     // dengan gelembung chat (chat bubble)
@@ -229,9 +226,6 @@ fun ChatMessageItem(
                     .weight(1f)
             )
             if (!selectionMode) {
-                IconButton(onClick = { onFlag(true) }) {
-                    Icon(Icons.Default.Flag, contentDescription = "Flag")
-                }
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
