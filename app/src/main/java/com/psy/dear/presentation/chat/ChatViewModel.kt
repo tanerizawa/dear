@@ -63,6 +63,9 @@ class ChatViewModel @Inject constructor(
             is ChatEvent.ExitSelection -> {
                 exitSelection()
             }
+            is ChatEvent.DeleteMessage -> {
+                deleteMessage(event.id)
+            }
         }
     }
 
@@ -70,21 +73,16 @@ class ChatViewModel @Inject constructor(
         val messageToSend = uiState.currentMessage
         if (messageToSend.isBlank()) return
 
-        // Update UI state to show loading
         uiState = uiState.copy(
             isSending = true,
-            currentMessage = "" // Clear input field
+            currentMessage = ""
         )
 
         viewModelScope.launch {
             try {
-                // Optimistically add user message to the list
-                // val optimisticUserMessage = ...
-                // uiState = uiState.copy(messages = uiState.messages + optimisticUserMessage)
-
                 when (val result = sendMessageUseCase(messageToSend)) {
                     is Result.Success -> {
-                        // No additional action needed here, messages will be refreshed below
+                        // no-op
                     }
                     is Result.Error -> {
                         if (result.exception is UnauthorizedException) {
@@ -92,12 +90,9 @@ class ChatViewModel @Inject constructor(
                         }
                         uiState = uiState.copy(error = result.exception?.message ?: "An unknown error occurred")
                     }
-                    is Result.Loading -> {
-                        // No-op: loading state is handled outside this scope
-                    }
+                    is Result.Loading -> {}
                 }
             } finally {
-                // Stop loading state regardless of outcome and refresh chat history
                 uiState = uiState.copy(
                     isSending = false,
                     messages = getChatHistoryUseCase().first()
@@ -134,6 +129,13 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    private fun deleteMessage(id: String) {
+        viewModelScope.launch {
+            deleteMessageUseCase(id)
+            uiState = uiState.copy(messages = getChatHistoryUseCase().first())
+        }
+    }
+
     private fun exitSelection() {
         uiState = uiState.copy(selectionMode = false, selectedIds = emptySet())
     }
@@ -155,6 +157,7 @@ sealed class ChatEvent {
     data class ToggleSelection(val id: String) : ChatEvent()
     object DeleteSelected : ChatEvent()
     object ExitSelection : ChatEvent()
+    data class DeleteMessage(val id: String) : ChatEvent()
 }
 
 sealed class ChatUiEvent {
