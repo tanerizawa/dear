@@ -91,7 +91,12 @@ Before using the chat endpoint you must create an account and obtain an access t
         -H "Content-Type: application/json" \
         -d '{"email": "test@example.com", "password": "secret"}'
    ```
-3. Use the token when calling `/chat/`:
+3. Optionally verify the token by fetching the current user:
+   ```bash
+   curl http://localhost:8000/api/v1/users/me \
+        -H "Authorization: Bearer <token>"
+   ```
+4. Use the token when calling `/chat/`:
    ```bash
    curl -X POST http://localhost:8000/api/v1/chat/ \
         -H "Authorization: Bearer <token>" \
