@@ -75,7 +75,31 @@ APP_NAME=Dear Diary
 
 Run the backend and then launch the Android app. The app communicates with the API under `http://localhost:8000/api/v1`.
 
-The chat endpoint now performs a basic emotion analysis on each message. The detected label is saved along with the chat history and influences the AI planner and generator prompts.
+### Authentication workflow
+
+Before using the chat endpoint you must create an account and obtain an access token:
+
+1. Register:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/register \
+        -H "Content-Type: application/json" \
+        -d '{"username": "test", "email": "test@example.com", "password": "secret"}'
+   ```
+2. Login and store the returned `access_token`:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/auth/login \
+        -H "Content-Type: application/json" \
+        -d '{"email": "test@example.com", "password": "secret"}'
+   ```
+3. Use the token when calling `/chat/`:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/chat/ \
+        -H "Authorization: Bearer <token>" \
+        -H "Content-Type: application/json" \
+        -d '{"message": "Halo"}'
+   ```
+
+The chat endpoint performs a basic emotion analysis on each message. The detected label is saved with the chat history and influences the AI planner and generator prompts.
 
 ## Running Tests
 
