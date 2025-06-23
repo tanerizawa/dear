@@ -12,8 +12,10 @@ router = APIRouter()
 
 def get_latest_journal(db: Session, user: models.User) -> str:
     """Return the latest journal content or empty string."""
-    latest_journal = crud.journal.get_multi_by_owner(db, owner_id=user.id, limit=1)
-    return latest_journal[0].content if latest_journal else ""
+    # CRUDJournal.get_multi_by_owner now returns entries ordered by
+    # ``created_at`` descending so limiting to one gives the latest journal.
+    journals = crud.journal.get_multi_by_owner(db, owner_id=user.id, limit=1)
+    return journals[0].content if journals else ""
 
 @router.post("/", response_model=schemas.chat.ChatMessage)
 async def handle_chat_message(
