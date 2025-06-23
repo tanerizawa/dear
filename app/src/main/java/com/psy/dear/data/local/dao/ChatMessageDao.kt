@@ -14,4 +14,10 @@ interface ChatMessageDao {
 
     @Query("SELECT * FROM chat_messages ORDER BY timestamp ASC")
     fun getAll(): Flow<List<ChatMessageEntity>>
+
+    @Query("UPDATE chat_messages SET isFlagged = :flag WHERE id = :id")
+    suspend fun updateFlagById(id: String, flag: Boolean)
+
+    @Query("DELETE FROM chat_messages WHERE id = :id")
+    suspend fun deleteById(id: String)
 }

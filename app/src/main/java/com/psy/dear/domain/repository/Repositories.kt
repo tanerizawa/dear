@@ -28,4 +28,6 @@ interface UserRepository {
 interface ChatRepository {
     fun getChatHistory(): Flow<List<ChatMessage>>
     suspend fun sendMessage(message: String): Result<Unit>
+    suspend fun deleteMessage(id: String): Result<Unit>
+    suspend fun setFlag(id: String, flagged: Boolean): Result<Unit>
 }

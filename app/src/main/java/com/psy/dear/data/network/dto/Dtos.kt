@@ -26,6 +26,10 @@ data class ChatResponse(
     val emotion: String?
 )
 
+data class FlagRequest(
+    @SerializedName("is_flagged") val isFlagged: Boolean
+)
+
 // UserDtos
 data class UserProfileResponse(
     val id: String,

@@ -1,9 +1,7 @@
 package com.psy.dear.data.network.api
 
 import com.psy.dear.data.network.dto.*
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface AuthApiService {
     @POST("auth/login")
@@ -22,6 +20,15 @@ interface JournalApiService {
 interface ChatApiService {
     @POST("chat/")
     suspend fun postMessage(@Body request: ChatRequest): ChatResponse
+
+    @DELETE("chat/{id}")
+    suspend fun deleteMessage(@Path("id") id: String)
+
+    @POST("chat/{id}/flag")
+    suspend fun setFlag(
+        @Path("id") id: String,
+        @Body request: FlagRequest
+    )
 }
 
 interface UserApiService {

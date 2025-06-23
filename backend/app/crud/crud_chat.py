@@ -1,3 +1,4 @@
+from sqlalchemy.orm import Session
 from .base import CRUDBase
 from app.models.chat import ChatMessage
 from app.schemas.chat import ChatMessageCreate, ChatMessageUpdate
@@ -22,5 +23,31 @@ class CRUDChatMessage(CRUDBase[ChatMessage, ChatMessageCreate, ChatMessageUpdate
             .limit(limit)
             .all()
         )
+
+    def remove(self, db: Session, *, id: int, owner_id: int) -> ChatMessage | None:
+        obj = (
+            db.query(ChatMessage)
+            .filter(ChatMessage.id == id, ChatMessage.owner_id == owner_id)
+            .first()
+        )
+        if obj:
+            db.delete(obj)
+            db.commit()
+        return obj
+
+    def set_flag(
+        self, db: Session, *, id: int, owner_id: int, flag: bool
+    ) -> ChatMessage | None:
+        obj = (
+            db.query(ChatMessage)
+            .filter(ChatMessage.id == id, ChatMessage.owner_id == owner_id)
+            .first()
+        )
+        if obj:
+            obj.is_flagged = flag
+            db.add(obj)
+            db.commit()
+            db.refresh(obj)
+        return obj
 
 chat_message = CRUDChatMessage(ChatMessage)
