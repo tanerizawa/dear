@@ -30,7 +30,7 @@ class PlannerService:
     async def get_plan(
         self,
         user_message: str,
-        chat_history: List[Dict[str, str]],
+        chat_history: List[str],
         latest_journal: str,
     ) -> ConversationPlan:
         """Determine which counseling technique Dear should apply next."""
@@ -41,7 +41,7 @@ class PlannerService:
             f"'{t.value}'" for t in CommunicationTechnique if t != CommunicationTechnique.UNKNOWN
         )
 
-        history_str = "\n".join(f"{m['role']}: {m['content']}" for m in chat_history)
+        history_str = "\n".join(chat_history)
 
         prompt = (
             "You are Dear's planning counselor. Choose the best next counseling "
