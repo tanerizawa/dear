@@ -37,3 +37,29 @@ def test_chat_flow_success(client):
     app.dependency_overrides.pop(PlannerService, None)
     app.dependency_overrides.pop(GeneratorService, None)
 
+
+def test_get_latest_journal_returns_newest_entry(client):
+    """Ensure get_latest_journal fetches the most recent journal content."""
+    client_app, session_local = client
+
+    db = session_local()
+    from app import crud, models, schemas
+    try:
+        user = db.query(models.User).first()
+        crud.journal.create_with_owner(
+            db,
+            obj_in=schemas.JournalCreate(title="old", content="first", mood="ok"),
+            owner_id=user.id,
+        )
+        crud.journal.create_with_owner(
+            db,
+            obj_in=schemas.JournalCreate(title="new", content="second", mood="ok"),
+            owner_id=user.id,
+        )
+        from app.api.v1.chat import get_latest_journal
+
+        latest = get_latest_journal(db, user)
+        assert latest == "second"
+    finally:
+        db.close()
+
