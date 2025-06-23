@@ -41,7 +41,10 @@ class GeneratorService:
             return response.json()
 
     async def generate_response(
-        self, plan: ConversationPlan, history: List[Dict]
+        self,
+        plan: ConversationPlan,
+        history: List[Dict],
+        emotion: str,
     ) -> str:
         self.log.info("generating_response", technique=plan.technique.value)
 
@@ -64,6 +67,7 @@ class GeneratorService:
             "Gunakan hanya informasi berikut sebagai konteks dan jangan menambahkan detail yang tidak disebutkan.\n\n"
             f"Riwayat chat:\n{chat_history_str}\n\n"
             f"Pesan pengguna terbaru:\n{user_message}\n\n"
+            f"**Emosi pengguna:** {emotion}\n"
             f"**Teknik:** {plan.technique.value}\n"
             f"**Cara menerapkan:** {technique_instruction}"
         )

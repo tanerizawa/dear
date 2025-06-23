@@ -31,6 +31,7 @@ class PlannerService:
         user_message: str,
         chat_history: List[str],
         latest_journal: str,
+        emotion: str,
     ) -> ConversationPlan:
         """Determine which counseling technique Dear should apply next."""
 
@@ -57,6 +58,7 @@ Gunakan toolbox teknik di bawah ini dan pilih satu strategi saja:
 - information: Jawab pertanyaan pengguna secara langsung, singkat, dan jujur.
 
 Entri jurnal terbaru: {latest_journal or 'Tidak ada'}
+Emosi pengguna saat ini: {emotion}
 Riwayat chat:
 {history_str}
 Pesan pengguna: {user_message}

@@ -104,14 +104,26 @@ class ChatRepositoryImpl @Inject constructor(
     override fun getChatHistory(): Flow<List<ChatMessage>> = dao.getAll().map { it.map { entity -> entity.toDomain() } }
     override suspend fun sendMessage(message: String): Result<Unit> {
         // 1. Simpan pesan pengguna ke DB lokal
-        val userMessage = ChatMessage(UUID.randomUUID().toString(), "user", message, OffsetDateTime.now())
+        val userMessage = ChatMessage(
+            UUID.randomUUID().toString(),
+            "user",
+            message,
+            null,
+            OffsetDateTime.now()
+        )
         dao.insert(userMessage.toEntity())
 
         // 2. Kirim ke API dan tunggu balasan
         return try {
             val response = api.postMessage(ChatRequest(message))
             // 3. Simpan balasan AI ke DB lokal
-            val assistantMessage = ChatMessage(UUID.randomUUID().toString(), "assistant", response.reply, OffsetDateTime.now())
+            val assistantMessage = ChatMessage(
+                UUID.randomUUID().toString(),
+                "assistant",
+                response.reply,
+                response.emotion,
+                OffsetDateTime.now()
+            )
             dao.insert(assistantMessage.toEntity())
             Result.Success(Unit)
         } catch (e: HttpException) {

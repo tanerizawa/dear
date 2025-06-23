@@ -36,6 +36,7 @@ fun ChatMessageEntity.toDomain(): ChatMessage {
         id = this.id,
         role = this.role,
         content = this.content,
+        emotion = this.emotion,
         timestamp = this.timestamp
     )
 }
@@ -45,6 +46,7 @@ fun ChatMessage.toEntity(): ChatMessageEntity {
         id = this.id,
         role = this.role,
         content = this.content,
+        emotion = this.emotion,
         timestamp = this.timestamp
     )
 }

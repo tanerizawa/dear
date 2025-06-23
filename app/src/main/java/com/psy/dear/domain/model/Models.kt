@@ -25,6 +25,7 @@ data class ChatMessage(
     val id: String,
     val role: String,
     val content: String,
+    val emotion: String?,
     val timestamp: OffsetDateTime
 )
 

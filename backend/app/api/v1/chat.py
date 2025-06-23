@@ -6,6 +6,7 @@ from app import models, schemas, crud, dependencies
 from app.models.chat import SenderType
 from app.services.planner_service import PlannerService
 from app.services.generator_service import GeneratorService
+from app.services.emotion_service import EmotionService
 
 router = APIRouter()
 
@@ -22,14 +23,17 @@ async def handle_chat_message(
         current_user: models.User = Depends(dependencies.get_current_user),
         planner: PlannerService = Depends(),
         generator: GeneratorService = Depends(),
+        emotion_service: EmotionService = Depends(),
 ):
     """
     Orkestrasi alur chat Planner/Generator.
     """
-    # 1. Simpan pesan dari pengguna
+    # 1. Analisis emosi dan simpan pesan dari pengguna
+    emotion_label = emotion_service.detect_emotion(chat_in.message)
     user_message_obj = schemas.chat.ChatMessageCreate(
         content=chat_in.message,
-        sender_type=SenderType.USER
+        sender_type=SenderType.USER,
+        emotion=emotion_label,
     )
     crud.chat_message.create_with_owner(db, obj_in=user_message_obj, owner_id=current_user.id)
 
@@ -53,14 +57,19 @@ async def handle_chat_message(
 
     # 3. Panggil Planner untuk mendapatkan rencana
     conversation_plan = await planner.get_plan(
-        chat_in.message, chat_history, latest_journal
+        chat_in.message,
+        chat_history,
+        latest_journal,
+        emotion_label,
     )
 
     # 4. Panggil Generator untuk mendapatkan respons final
     # history_formatted already contains the latest user message so we don't
     # need to send it separately to the GeneratorService
     final_response = await generator.generate_response(
-        conversation_plan, history_formatted
+        conversation_plan,
+        history_formatted,
+        emotion_label,
     )
 
     # 5. Simpan respons AI ke database
