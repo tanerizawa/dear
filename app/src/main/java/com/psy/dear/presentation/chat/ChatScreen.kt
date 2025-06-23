@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -24,10 +27,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -62,6 +67,14 @@ fun ChatScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            ChatTopBar(
+                selectionMode = uiState.selectionMode,
+                selectedCount = uiState.selectedIds.size,
+                onBack = { viewModel.onEvent(ChatEvent.ExitSelection) },
+                onDelete = { viewModel.onEvent(ChatEvent.DeleteSelected) }
+            )
+        },
         bottomBar = {
             ChatInputBar(
                 text = uiState.currentMessage,
@@ -96,6 +109,14 @@ fun ChatScreen(
                 items(uiState.messages) { message ->
                     ChatMessageItem(
                         message = message,
+                        selected = uiState.selectedIds.contains(message.id),
+                        selectionMode = uiState.selectionMode,
+                        onClick = {
+                            if (uiState.selectionMode) {
+                                viewModel.onEvent(ChatEvent.ToggleSelection(message.id))
+                            }
+                        },
+                        onLongPress = { viewModel.onEvent(ChatEvent.EnterSelection(message.id)) },
                         onDelete = { viewModel.onEvent(ChatEvent.DeleteMessage(message.id)) },
                         onFlag = { flag -> viewModel.onEvent(ChatEvent.FlagMessage(message.id, flag)) }
                     )
@@ -103,6 +124,34 @@ fun ChatScreen(
             }
         }
     }
+}
+
+@Composable
+fun ChatTopBar(
+    selectionMode: Boolean,
+    selectedCount: Int,
+    onBack: () -> Unit,
+    onDelete: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(if (selectionMode) "$selectedCount selected" else "Chat")
+        },
+        navigationIcon = {
+            if (selectionMode) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            }
+        },
+        actions = {
+            if (selectionMode) {
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -150,6 +199,10 @@ fun ChatInputBar(
 @Composable
 fun ChatMessageItem(
     message: ChatMessage,
+    selected: Boolean,
+    selectionMode: Boolean,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
     onDelete: () -> Unit,
     onFlag: (Boolean) -> Unit
 ) {
@@ -160,6 +213,11 @@ fun ChatMessageItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .combinedClickable(onClick = onClick, onLongClick = onLongPress)
+            .background(
+                if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                else Color.Transparent
+            )
             .padding(vertical = 4.dp),
         contentAlignment = alignment
     ) {
@@ -170,11 +228,13 @@ fun ChatMessageItem(
                     .padding(8.dp)
                     .weight(1f)
             )
-            IconButton(onClick = { onFlag(true) }) {
-                Icon(Icons.Default.Flag, contentDescription = "Flag")
-            }
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            if (!selectionMode) {
+                IconButton(onClick = { onFlag(true) }) {
+                    Icon(Icons.Default.Flag, contentDescription = "Flag")
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
             }
         }
     }
