@@ -48,7 +48,10 @@ class GeneratorService:
             "1. Gunakan HANYA teknik yang diberikan.\n"
             "2. JANGAN memberi nasihat.\n"
             "3. JANGAN menilai atau menganalisis.\n"
-            "4. Buatlah singkat dan natural.\n\n"
+            "4. Buatlah singkat dan natural.\n"
+            "5. Jawab hanya berdasarkan informasi yang diberikan pengguna.\n"
+            "6. Jangan menebak atau menambahkan detail yang tidak disebutkan.\n"
+            "7. Keep replies 1-2 sentences long.\n\n"
             f"**Teknik:** {plan.technique.value}\n"
             f"**Cara menerapkan:** {technique_instruction}"
         )
