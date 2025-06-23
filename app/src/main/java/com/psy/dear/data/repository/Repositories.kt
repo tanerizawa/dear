@@ -15,6 +15,7 @@ import com.psy.dear.data.network.dto.ChatRequest
 import com.psy.dear.data.network.dto.CreateJournalRequest
 import com.psy.dear.data.network.dto.LoginRequest
 import com.psy.dear.data.network.dto.RegisterRequest
+import com.psy.dear.data.network.dto.FlagRequest
 import com.psy.dear.domain.model.*
 import com.psy.dear.domain.repository.AuthRepository
 import com.psy.dear.domain.repository.ChatRepository
@@ -137,5 +138,21 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.Error(e)
         }
+    }
+
+    override suspend fun deleteMessage(id: String): Result<Unit> = try {
+        api.deleteMessage(id)
+        dao.deleteById(id)
+        Result.Success(Unit)
+    } catch (e: Exception) {
+        Result.Error(e)
+    }
+
+    override suspend fun setFlag(id: String, flagged: Boolean): Result<Unit> = try {
+        api.setFlag(id, FlagRequest(flagged))
+        dao.updateFlagById(id, flagged)
+        Result.Success(Unit)
+    } catch (e: Exception) {
+        Result.Error(e)
     }
 }
