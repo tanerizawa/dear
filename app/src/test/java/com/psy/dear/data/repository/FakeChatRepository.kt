@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class FakeChatRepository : ChatRepository {
     private val messagesFlow = MutableStateFlow<List<ChatMessage>>(emptyList())
     var sendResult: Result<Unit> = Result.Success(Unit)
+    val deletedIds = mutableListOf<String>()
 
     override fun getChatHistory(): Flow<List<ChatMessage>> = messagesFlow.asStateFlow()
 
@@ -17,7 +18,10 @@ class FakeChatRepository : ChatRepository {
         return sendResult
     }
 
-    override suspend fun deleteMessage(id: String): Result<Unit> = Result.Success(Unit)
+    override suspend fun deleteMessage(id: String): Result<Unit> {
+        deletedIds.add(id)
+        return Result.Success(Unit)
+    }
 
     override suspend fun flagMessage(id: String, flagged: Boolean): Result<Unit> = Result.Success(Unit)
 }
