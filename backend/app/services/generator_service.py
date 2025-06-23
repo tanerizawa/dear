@@ -1,7 +1,7 @@
 import httpx
 import structlog
 from typing import List, Dict
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from app.core.config import Settings, settings
 from app.schemas.plan import ConversationPlan
 
