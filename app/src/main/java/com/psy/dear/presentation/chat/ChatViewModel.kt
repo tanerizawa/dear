@@ -51,9 +51,6 @@ class ChatViewModel @Inject constructor(
             is ChatEvent.SendMessage -> {
                 sendMessage()
             }
-            is ChatEvent.DeleteMessage -> {
-                deleteMessage(event.id)
-            }
             is ChatEvent.EnterSelection -> {
                 enterSelection(event.id)
             }
@@ -109,13 +106,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun deleteMessage(id: String) {
-        viewModelScope.launch {
-            deleteMessageUseCase(id)
-            uiState = uiState.copy(messages = getChatHistoryUseCase().first())
-        }
-    }
-
     private fun enterSelection(id: String) {
         uiState = uiState.copy(
             selectionMode = true,
@@ -161,7 +151,6 @@ data class ChatUiState(
 sealed class ChatEvent {
     data class OnMessageChange(val message: String) : ChatEvent()
     object SendMessage : ChatEvent()
-    data class DeleteMessage(val id: String) : ChatEvent()
     data class EnterSelection(val id: String) : ChatEvent()
     data class ToggleSelection(val id: String) : ChatEvent()
     object DeleteSelected : ChatEvent()
