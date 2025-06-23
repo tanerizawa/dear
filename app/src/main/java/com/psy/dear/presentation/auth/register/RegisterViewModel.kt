@@ -2,6 +2,7 @@ package com.psy.dear.presentation.auth.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Patterns
 import com.psy.dear.core.Result
 import com.psy.dear.domain.use_case.auth.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,13 @@ class RegisterViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     fun register(username: String, email: String, password: String) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            viewModelScope.launch {
+                _eventFlow.emit(RegisterEvent.ShowError("Invalid email address"))
+            }
+            return
+        }
+
         viewModelScope.launch {
             when(val result = registerUseCase(username, email, password)) {
                 is Result.Success -> _eventFlow.emit(RegisterEvent.RegisterSuccess)
