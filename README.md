@@ -53,6 +53,8 @@ The backend reads several variables from the environment:
 - `OPENROUTER_API_KEY` – API key for the OpenRouter chat service.
 - `PLANNER_MODEL_NAME` – model name used by the conversation planner.
 - `GENERATOR_MODEL_NAME` – model name used by the response generator.
+- `APP_SITE_URL` – site URL sent in OpenRouter requests for identification.
+- `APP_NAME` – application name reported to OpenRouter when making requests.
 
 ## Usage
 
