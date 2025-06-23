@@ -23,9 +23,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.psy.dear.domain.model.ChatMessage
+import com.psy.dear.ui.theme.ChatAppBar
+import com.psy.dear.ui.theme.ChatBackground
+import com.psy.dear.ui.theme.OtherBubble
+import com.psy.dear.ui.theme.UserBubble
+import com.psy.dear.ui.theme.IconInactive
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -73,6 +80,7 @@ fun ChatScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(ChatBackground)
                 .padding(paddingValues)
         ) {
             if (uiState.error != null) {
@@ -119,6 +127,12 @@ fun ChatTopBar(
     onDelete: () -> Unit
 ) {
     TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = ChatAppBar,
+            navigationIconContentColor = Color.White,
+            titleContentColor = Color.White,
+            actionIconContentColor = Color.White
+        ),
         title = {
             Text(if (selectionMode) "$selectedCount selected" else "Chat")
         },
@@ -168,14 +182,15 @@ fun ChatInputBar(
             } else {
                 IconButton(
                     onClick = onSendClick,
-                    enabled = text.isNotBlank()
+                    enabled = text.isNotBlank(),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = if (text.isNotBlank()) ChatAppBar else Color.Transparent
+                    )
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send Message",
-                        tint = if (text.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.5f
-                        )
+                        tint = if (text.isNotBlank()) Color.White else IconInactive
                     )
                 }
             }
@@ -192,7 +207,8 @@ fun ChatMessageItem(
     onLongPress: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val alignment = if (message.role == "user") Alignment.CenterEnd else Alignment.CenterStart
+    val isUser = message.role == "user"
+    val alignment = if (isUser) Alignment.CenterEnd else Alignment.CenterStart
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -204,13 +220,26 @@ fun ChatMessageItem(
             .padding(vertical = 4.dp),
         contentAlignment = alignment
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = message.content,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-            )
+        Surface(
+            color = if (isUser) UserBubble else OtherBubble,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
+            ) {
+                Text(
+                    text = message.content,
+                    color = Color.Black,
+                    modifier = Modifier.weight(1f, false)
+                )
+                Text(
+                    text = message.timestamp.format(DateTimeFormatter.ofPattern("HH:mm")),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF666666),
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
     }
 }
