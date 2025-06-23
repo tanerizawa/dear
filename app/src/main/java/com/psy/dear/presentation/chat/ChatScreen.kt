@@ -37,6 +37,7 @@ import com.psy.dear.presentation.chat.ChatUiEvent
 @Composable
 fun ChatScreen(
     navController: NavController,
+    onNavigateToLogin: () -> Unit,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
@@ -45,11 +46,7 @@ fun ChatScreen(
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
-                ChatUiEvent.NavigateToLogin -> {
-                    navController.navigate("login") {
-                        popUpTo("main_flow") { inclusive = true }
-                    }
-                }
+                ChatUiEvent.NavigateToLogin -> onNavigateToLogin()
             }
         }
     }
