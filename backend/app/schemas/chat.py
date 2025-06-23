@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import datetime
 from app.models.chat import SenderType
 
+
 # Skema dasar untuk field yang sama di semua varian
 class ChatMessageBase(BaseModel):
     content: str
@@ -20,6 +21,11 @@ class ChatMessageCreate(ChatMessageBase):
 # Skema untuk memperbarui pesan (saat ini tidak digunakan, tapi ada untuk kelengkapan)
 class ChatMessageUpdate(BaseModel):
     pass
+
+
+# Schema for flagging/unflagging a chat message
+class ChatFlagUpdate(BaseModel):
+    flag: bool
 
 
 # Skema untuk properti yang ada di database tetapi tidak selalu dikirim ke klien
