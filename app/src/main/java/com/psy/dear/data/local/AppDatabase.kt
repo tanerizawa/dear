@@ -10,7 +10,7 @@ import com.psy.dear.data.local.entity.JournalEntity
 
 @Database(
     entities = [JournalEntity::class, ChatMessageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

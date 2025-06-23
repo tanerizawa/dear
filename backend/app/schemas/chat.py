@@ -8,6 +8,7 @@ class ChatMessageBase(BaseModel):
     content: str
     sender_type: SenderType
     ai_technique: Optional[str] = None
+    emotion: Optional[str] = None
 
 
 # Skema untuk membuat pesan baru (digunakan oleh CRUD)

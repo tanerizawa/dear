@@ -20,3 +20,5 @@ class ChatMessage(Base):
 
     # Kolom penting untuk menyimpan hasil dari Planner
     ai_technique = Column(String, nullable=True)
+    # Optional emotion label for the message
+    emotion = Column(String, nullable=True)
