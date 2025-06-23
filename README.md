@@ -73,7 +73,12 @@ APP_NAME=Dear Diary
 
 ## Usage
 
+
 Run the backend and then launch the Android app. The app communicates with the API under `http://localhost:8000/api/v1`.
+
+### Android Usage
+
+Long‑press any message in the conversation to enter selection mode. A delete icon will appear in the top bar so you can remove the selected messages, similar to how WhatsApp handles chat message deletion.
 
 ### Authentication workflow
 
