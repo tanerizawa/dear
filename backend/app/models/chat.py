@@ -18,8 +18,9 @@ class ChatMessage(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User")
 
-    # Kolom penting untuk menyimpan hasil dari Planner
+    # Kolom hasil dari Planner
     ai_technique = Column(String, nullable=True)
-    # Optional emotion label for the message
     emotion = Column(String, nullable=True)
+
+    # Kolom tambahan untuk flagging pesan
     is_flagged = Column(Boolean, default=False)

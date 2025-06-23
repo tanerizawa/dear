@@ -2,7 +2,7 @@ import httpx
 import json
 import structlog
 from typing import List, Dict
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from app.core.config import Settings, settings
 from app.schemas.plan import CommunicationTechnique, ConversationPlan
 
@@ -18,25 +18,29 @@ class PlannerService:
             "HTTP-Referer": self.settings.APP_SITE_URL,
             "X-Title": self.settings.APP_NAME,
         }
-        json_data = {"model": model, "messages": messages, "response_format": {"type": "json_object"}}
+        json_data = {
+            "model": model,
+            "messages": messages,
+            "response_format": {"type": "json_object"}
+        }
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(f"{self.api_base_url}/chat/completions", headers=headers, json=json_data, timeout=20.0)
+            response = await client.post(
+                f"{self.api_base_url}/chat/completions",
+                headers=headers,
+                json=json_data,
+                timeout=20.0
+            )
             response.raise_for_status()
             return response.json()
 
-
-    async def get_plan(
-        self,
-        user_message: str,
-        chat_history: List[str],
-        latest_journal: str,
-        emotion: str,
-    ) -> ConversationPlan:
-        """Determine which counseling technique Dear should apply next."""
-
-        self.log.info("planning_conversation", user_message=user_message)
-
+    def _build_prompt(
+            self,
+            user_message: str,
+            chat_history: List[str],
+            latest_journal: str,
+            emotion_label: str
+    ) -> str:
         available_techniques = ", ".join(
             f"'{t.value}'" for t in CommunicationTechnique if t != CommunicationTechnique.UNKNOWN
         )
@@ -57,25 +61,47 @@ Gunakan toolbox teknik di bawah ini dan pilih satu strategi saja:
 {available_techniques}
 - information: Jawab pertanyaan pengguna secara langsung, singkat, dan jujur.
 
+Emosi terdeteksi: {emotion_label or 'Tidak tersedia'}
 Entri jurnal terbaru: {latest_journal or 'Tidak ada'}
-Emosi pengguna saat ini: {emotion}
 Riwayat chat:
 {history_str}
 Pesan pengguna: {user_message}
 
 Balas HANYA dengan objek JSON sederhana seperti {{"technique": "<name>"}}.
 """
+        return prompt
 
+    async def get_plan(
+            self,
+            user_message: str,
+            chat_history: List[str],
+            latest_journal: str,
+            emotion_label: str
+    ) -> ConversationPlan:
+        """Determine which counseling technique Dear should apply next."""
+
+        self.log.info("planning_conversation", user_message=user_message)
+
+        prompt = self._build_prompt(user_message, chat_history, latest_journal, emotion_label)
         messages = [{"role": "system", "content": prompt}]
 
         try:
             data = await self._call_openrouter(self.settings.PLANNER_MODEL_NAME, messages)
-            content = data["choices"][0]["message"]["content"]
+            content = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+            self.log.debug("planner_response_content", content=repr(content))
+
+            # Bersihkan markdown jika ada
+            if content.startswith("```json"):
+                content = content.removeprefix("```json").removesuffix("```").strip()
+
+            if not content:
+                raise ValueError("Empty response from OpenRouter")
+
             plan_data = json.loads(content)
 
             if (
-                "technique" not in plan_data
-                or plan_data["technique"] not in [t.value for t in CommunicationTechnique]
+                    "technique" not in plan_data
+                    or plan_data["technique"] not in [t.value for t in CommunicationTechnique]
             ):
                 raise ValueError("Invalid technique returned by AI")
 

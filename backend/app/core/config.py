@@ -9,8 +9,8 @@ class Settings(BaseSettings):
 
     # API keys and model configuration for the AI chat features
     OPENROUTER_API_KEY: str | None = None
-    PLANNER_MODEL_NAME: str = "mistralai/mistral-7b-instruct"
-    GENERATOR_MODEL_NAME: str = "google/gemma-7b-it"
+    PLANNER_MODEL_NAME: str = "deepseek/deepseek-chat-v3-0324"
+    GENERATOR_MODEL_NAME: str = "deepseek/deepseek-chat-v3-0324"
     APP_SITE_URL: str = "https://bizmark.id"
     APP_NAME: str = "Dear Diary"
 

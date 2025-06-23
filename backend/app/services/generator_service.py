@@ -5,14 +5,12 @@ from fastapi import Depends
 from app.core.config import Settings, settings
 from app.schemas.plan import ConversationPlan
 
-
 class GeneratorService:
     def __init__(self, settings: Settings = Depends(lambda: settings)):
         self.settings = settings
         self.api_base_url = "https://openrouter.ai/api/v1"
         self.log = structlog.get_logger(__name__)
 
-        # Brief instructions for applying each communication technique
         self.TOOLBOX = {
             "social_greeting": "start with a warm, friendly greeting to set a comfortable tone.",
             "probing": "ask a short clarifying question to gently explore the user's message.",
@@ -25,9 +23,7 @@ class GeneratorService:
             "unknown": "ask a simple open question like 'Could you tell me more?'",
         }
 
-    async def _call_openrouter(
-        self, model: str, messages: List[Dict[str, str]]
-    ) -> Dict:
+    async def _call_openrouter(self, model: str, messages: List[Dict[str, str]]) -> Dict:
         headers = {"Authorization": f"Bearer {self.settings.OPENROUTER_API_KEY}"}
         json_data = {"model": model, "messages": messages}
         async with httpx.AsyncClient() as client:
@@ -41,10 +37,10 @@ class GeneratorService:
             return response.json()
 
     async def generate_response(
-        self,
-        plan: ConversationPlan,
-        history: List[Dict],
-        emotion: str,
+            self,
+            plan: ConversationPlan,
+            history: List[Dict],
+            emotion: str,
     ) -> str:
         self.log.info("generating_response", technique=plan.technique.value)
 
@@ -55,8 +51,6 @@ class GeneratorService:
         chat_history_str = "\n".join(
             f"{msg['role']}: {msg['content']}" for msg in history
         )
-
-        # The user's latest message is the last item in the history list
         user_message = history[-1]["content"] if history else ""
 
         prompt = (
@@ -64,7 +58,8 @@ class GeneratorService:
             "Selalu jawab dalam Bahasa Indonesia yang santai dan penuh empati. "
             "Balasanmu harus singkat, 2-3 kalimat, tanpa memberi nasihat atau menilai. "
             "Variasikan teknik komunikasi yang ditetapkan agar percakapan terasa alami. "
-            "Gunakan hanya informasi berikut sebagai konteks dan jangan menambahkan detail yang tidak disebutkan.\n\n"
+            "Gunakan hanya informasi berikut sebagai konteks dan jangan menambahkan detail yang tidak disebutkan. "
+            "JANGAN kosong.\n\n"
             f"Riwayat chat:\n{chat_history_str}\n\n"
             f"Pesan pengguna terbaru:\n{user_message}\n\n"
             f"**Emosi pengguna:** {emotion}\n"
@@ -79,7 +74,13 @@ class GeneratorService:
             data = await self._call_openrouter(
                 self.settings.GENERATOR_MODEL_NAME, messages
             )
-            return data["choices"][0]["message"]["content"].strip()
+            content = data["choices"][0]["message"]["content"].strip()
+
+            if not content:
+                self.log.error("generator_empty_response", prompt=prompt, technique=plan.technique.value)
+                return "Maaf, aku belum bisa memberikan tanggapan. Bisa kamu ceritakan sedikit lagi?"
+
+            return content
         except Exception as e:
             self.log.error("generator_service_error", error=str(e))
-            return "I'm here to listen. Could you tell me a little more about that?"
+            return "Maaf, ada gangguan teknis. Bisa kamu ulangi lagi?"

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class JournalBase(BaseModel):
@@ -18,5 +18,5 @@ class JournalInDB(JournalBase):
     created_at: datetime
     sentiment_score: float | None = None
     sentiment_label: str | None = None
-    class Config:
-        orm_mode = True
+
+    model_config = ConfigDict(from_attributes=True)
