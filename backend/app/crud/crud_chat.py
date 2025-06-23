@@ -1,4 +1,3 @@
-
 from .base import CRUDBase
 from app.models.chat import ChatMessage
 from app.schemas.chat import ChatMessageCreate, ChatMessageUpdate
