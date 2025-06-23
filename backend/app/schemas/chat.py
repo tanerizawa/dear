@@ -1,5 +1,3 @@
-# File: backend/app/schemas/chat.py
-
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime

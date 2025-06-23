@@ -1,5 +1,3 @@
-# File: backend/app/models/chat.py
-
 from enum import Enum  # <-- TAMBAHKAN BARIS INI
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship

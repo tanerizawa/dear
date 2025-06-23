@@ -1,4 +1,3 @@
-
 import httpx
 import structlog
 from typing import List, Dict
