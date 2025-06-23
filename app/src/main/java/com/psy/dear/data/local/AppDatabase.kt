@@ -12,7 +12,7 @@ import com.psy.dear.data.local.entity.JournalEntity
 
 @Database(
     entities = [JournalEntity::class, ChatMessageEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -32,6 +32,12 @@ abstract class AppDatabase : RoomDatabase() {
                         "`timestamp` TEXT NOT NULL, " +
                         "PRIMARY KEY(`id`))"
                 )
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE `chat_messages` ADD COLUMN `emotion` TEXT")
             }
         }
     }
