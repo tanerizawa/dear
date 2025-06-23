@@ -9,16 +9,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
 import com.psy.dear.core.UnauthorizedException
+import com.psy.dear.domain.use_case.chat.GetChatHistoryUseCase
 import com.psy.dear.domain.use_case.chat.SendMessageUseCase
 import com.psy.dear.domain.model.ChatMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
+    private val getChatHistoryUseCase: GetChatHistoryUseCase,
     private val sendMessageUseCase: SendMessageUseCase
 ) : ViewModel() {
 
@@ -27,6 +32,14 @@ class ChatViewModel @Inject constructor(
 
     private val _eventFlow = MutableSharedFlow<ChatUiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
+
+    init {
+        getChatHistoryUseCase()
+            .onEach { messages ->
+                uiState = uiState.copy(messages = messages)
+            }
+            .launchIn(viewModelScope)
+    }
 
     fun onEvent(event: ChatEvent) {
         when (event) {
@@ -57,8 +70,8 @@ class ChatViewModel @Inject constructor(
 
                 when (val result = sendMessageUseCase(messageToSend)) {
                     is Result.Success -> {
-                        // TODO: Refresh chat history from a single source of truth (e.g., local db)
-                        // For now, let's assume we need to refetch or the response gives us what we need
+                        // Refresh chat history after a successful send
+                        uiState = uiState.copy(messages = getChatHistoryUseCase().first())
                     }
                     is Result.Error -> {
                         if (result.exception is UnauthorizedException) {
