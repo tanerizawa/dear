@@ -20,6 +20,7 @@ class GeneratorService:
             "reflection": "mirror back the main feeling or idea you heard.",
             "summarizing": "briefly recap the key points shared by the user.",
             "clarifying": "confirm your understanding of what the user said.",
+            "information": "Jawab pertanyaan pengguna secara langsung, singkat, dan jujur berdasarkan riwayat percakapan kita.",
             "unknown": "ask a simple open question like 'Could you tell me more?'"
         }
 

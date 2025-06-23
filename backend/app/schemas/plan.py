@@ -11,6 +11,7 @@ class CommunicationTechnique(str, Enum):
     REFLECTION = "reflection"
     SUMMARIZING = "summarizing"
     CLARIFYING = "clarifying"
+    INFORMATION = "information"
     # Fallback option when the planner cannot determine the technique
     UNKNOWN = "unknown"
 

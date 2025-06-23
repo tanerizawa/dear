@@ -42,15 +42,26 @@ class PlannerService:
 
         history_str = "\n".join(chat_history)
 
-        prompt = (
-            "You are Dear's planning counselor. Choose the best next counseling "
-            "technique for Dear to use when replying.\n"
-            f"Strategies: [{available_techniques}]\n\n"
-            f"Latest journal entry: {latest_journal or 'None'}\n"
-            f"Chat history:\n{history_str}\n"
-            f"User message: {user_message}\n\n"
-            "Respond ONLY with a JSON object like {\"technique\": \"<name>\"}."
-        )
+        prompt = f"""
+Anda adalah konselor perencana untuk Dear. Analisis riwayat percakapan dan pesan pengguna, kemudian pilih SATU teknik komunikasi yang paling sesuai.
+
+Kategorikan pesan pengguna ke dalam salah satu dari empat tipe berikut:
+1. Salam atau basa-basi.
+2. Curhat atau ungkapan perasaan.
+3. Pertanyaan informasi.
+4. Tidak jelas atau di luar konteks.
+
+Gunakan toolbox teknik di bawah ini dan pilih satu strategi saja:
+{available_techniques}
+- information: Jawab pertanyaan pengguna secara langsung, singkat, dan jujur.
+
+Entri jurnal terbaru: {latest_journal or 'Tidak ada'}
+Riwayat chat:
+{history_str}
+Pesan pengguna: {user_message}
+
+Balas HANYA dengan objek JSON sederhana seperti {{"technique": "<name>"}}.
+"""
 
         messages = [{"role": "system", "content": prompt}]
 
