@@ -41,3 +41,20 @@ def test_login_returns_token(client):
     assert "access_token" in data
     assert data["token_type"] == "bearer"
 
+
+def test_login_invalid_credentials(client):
+    client_app, _ = client
+    reg_payload = {
+        "username": "charlie",
+        "email": "charlie@example.com",
+        "password": "secret",
+    }
+    client_app.post("/api/v1/auth/register", json=reg_payload)
+
+    response = client_app.post(
+        "/api/v1/auth/login",
+        json={"email": "charlie@example.com", "password": "wrong"},
+    )
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Incorrect email or password"
+
