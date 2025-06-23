@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.psy.dear.presentation.chat.ChatScreen
 import com.psy.dear.presentation.growth.GrowthScreen
@@ -19,7 +20,7 @@ import com.psy.dear.presentation.services.ServicesScreen
 val mainScreens = listOf(Screen.Home, Screen.Chat, Screen.Growth, Screen.Services, Screen.Profile)
 
 @Composable
-fun MainScreen() {
+fun MainScreen(rootNavController: NavHostController) {
     val mainNavController = rememberNavController()
     Scaffold(
         bottomBar = {
@@ -50,7 +51,16 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Home.route) { HomeScreen(navController = mainNavController) }
-            composable(Screen.Chat.route) { ChatScreen(navController = mainNavController) }
+            composable(Screen.Chat.route) {
+                ChatScreen(
+                    navController = mainNavController,
+                    onNavigateToLogin = {
+                        rootNavController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.MainFlow.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
             composable(Screen.Growth.route) { GrowthScreen(navController = mainNavController) }
             composable(Screen.Services.route) { ServicesScreen(navController = mainNavController) }
             composable(Screen.Profile.route) { ProfileScreen(navController = mainNavController) }

@@ -75,7 +75,7 @@ fun AppNavigation(startDestination: String) {
         }
 
         composable(Screen.MainFlow.route) {
-            MainScreen()
+            MainScreen(navController)
         }
     }
 }
