@@ -9,6 +9,7 @@ class ChatMessageBase(BaseModel):
     sender_type: SenderType
     ai_technique: Optional[str] = None
     emotion: Optional[str] = None
+    is_flagged: bool = False
 
 
 # Skema untuk membuat pesan baru (digunakan oleh CRUD)
@@ -26,6 +27,7 @@ class ChatMessageInDBBase(ChatMessageBase):
     id: int
     owner_id: int
     created_at: datetime
+    is_flagged: bool
 
     # Perbaikan untuk warning 'orm_mode'
     model_config = ConfigDict(from_attributes=True)
