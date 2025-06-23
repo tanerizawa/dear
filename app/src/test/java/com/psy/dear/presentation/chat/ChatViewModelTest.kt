@@ -51,4 +51,41 @@ class ChatViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `enter selection activates mode and stores id`() = runTest {
+        viewModel.onEvent(ChatEvent.EnterSelection("1"))
+
+        assertEquals(true, viewModel.uiState.selectionMode)
+        assertEquals(setOf("1"), viewModel.uiState.selectedIds)
+    }
+
+    @Test
+    fun `toggle selection adds and removes ids`() = runTest {
+        viewModel.onEvent(ChatEvent.EnterSelection("1"))
+
+        viewModel.onEvent(ChatEvent.ToggleSelection("2"))
+        assertEquals(setOf("1", "2"), viewModel.uiState.selectedIds)
+        assertEquals(true, viewModel.uiState.selectionMode)
+
+        viewModel.onEvent(ChatEvent.ToggleSelection("1"))
+        assertEquals(setOf("2"), viewModel.uiState.selectedIds)
+        assertEquals(true, viewModel.uiState.selectionMode)
+
+        viewModel.onEvent(ChatEvent.ToggleSelection("2"))
+        assertEquals(emptySet(), viewModel.uiState.selectedIds)
+        assertEquals(false, viewModel.uiState.selectionMode)
+    }
+
+    @Test
+    fun `delete selected removes messages and clears selection`() = runTest {
+        viewModel.onEvent(ChatEvent.EnterSelection("1"))
+        viewModel.onEvent(ChatEvent.ToggleSelection("2"))
+
+        viewModel.onEvent(ChatEvent.DeleteSelected)
+
+        assertEquals(listOf("1", "2"), fakeRepository.deletedIds)
+        assertEquals(false, viewModel.uiState.selectionMode)
+        assertEquals(emptySet(), viewModel.uiState.selectedIds)
+    }
 }
