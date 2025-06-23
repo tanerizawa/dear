@@ -141,7 +141,6 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteMessage(id: String): Result<Unit> = try {
-        api.deleteMessage(id)
         dao.deleteById(id)
         Result.Success(Unit)
     } catch (e: Exception) {
