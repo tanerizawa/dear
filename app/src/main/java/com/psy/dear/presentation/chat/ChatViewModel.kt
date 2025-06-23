@@ -59,6 +59,18 @@ class ChatViewModel @Inject constructor(
             is ChatEvent.FlagMessage -> {
                 flagMessage(event.id, event.flagged)
             }
+            is ChatEvent.EnterSelection -> {
+                enterSelection(event.id)
+            }
+            is ChatEvent.ToggleSelection -> {
+                toggleSelection(event.id)
+            }
+            is ChatEvent.DeleteSelected -> {
+                deleteSelected()
+            }
+            is ChatEvent.ExitSelection -> {
+                exitSelection()
+            }
         }
     }
 
@@ -115,13 +127,47 @@ class ChatViewModel @Inject constructor(
             uiState = uiState.copy(messages = getChatHistoryUseCase().first())
         }
     }
+
+    private fun enterSelection(id: String) {
+        uiState = uiState.copy(
+            selectionMode = true,
+            selectedIds = setOf(id)
+        )
+    }
+
+    private fun toggleSelection(id: String) {
+        val current = uiState.selectedIds.toMutableSet()
+        if (!current.add(id)) current.remove(id)
+        uiState = uiState.copy(
+            selectedIds = current,
+            selectionMode = current.isNotEmpty()
+        )
+    }
+
+    private fun deleteSelected() {
+        viewModelScope.launch {
+            val ids = uiState.selectedIds
+            ids.forEach { deleteMessageUseCase(it) }
+            uiState = uiState.copy(
+                messages = getChatHistoryUseCase().first(),
+                selectionMode = false,
+                selectedIds = emptySet()
+            )
+        }
+    }
+
+    private fun exitSelection() {
+        uiState = uiState.copy(selectionMode = false, selectedIds = emptySet())
+    }
 }
 
 data class ChatUiState(
     val messages: List<ChatMessage> = emptyList(),
     val currentMessage: String = "",
     val isSending: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val selectionMode: Boolean = false,
+    val selectedIds: Set<String> = emptySet()
 )
 
 sealed class ChatEvent {
@@ -129,6 +175,10 @@ sealed class ChatEvent {
     object SendMessage : ChatEvent()
     data class DeleteMessage(val id: String) : ChatEvent()
     data class FlagMessage(val id: String, val flagged: Boolean) : ChatEvent()
+    data class EnterSelection(val id: String) : ChatEvent()
+    data class ToggleSelection(val id: String) : ChatEvent()
+    object DeleteSelected : ChatEvent()
+    object ExitSelection : ChatEvent()
 }
 
 sealed class ChatUiEvent {
