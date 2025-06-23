@@ -20,7 +20,7 @@ interface JournalApiService {
 }
 
 interface ChatApiService {
-    @POST("chat")
+    @POST("chat/")
     suspend fun postMessage(@Body request: ChatRequest): ChatResponse
 }
 
