@@ -127,7 +127,8 @@ class ChatRepositoryImpl @Inject constructor(
             dao.insert(assistantMessage.toEntity())
             Result.Success(Unit)
         } catch (e: HttpException) {
-            if (e.code() == 403) {
+            val code = e.code()
+            if (code == 401 || code == 403 || code == 404) {
                 prefs.clearAuthToken()
                 Result.Error(UnauthorizedException())
             } else {
