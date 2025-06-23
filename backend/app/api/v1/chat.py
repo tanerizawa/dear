@@ -34,8 +34,10 @@ async def handle_chat_message(
     crud.chat_message.create_with_owner(db, obj_in=user_message_obj, owner_id=current_user.id)
 
     # 2. Ambil riwayat chat & bangun konteks
+    # Load a bit more history to give the Planner and Generator
+    # better conversational context
     history_db = crud.chat_message.get_multi_by_owner(
-        db, owner_id=current_user.id, limit=6
+        db, owner_id=current_user.id, limit=10
     )
 
     # List of {role, content} dicts for the GeneratorService
