@@ -23,7 +23,9 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "dear_diary_db"
-        ).build()
+        )
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
     }
 
     @Provides

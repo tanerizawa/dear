@@ -3,6 +3,8 @@ package com.psy.dear.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.psy.dear.data.local.dao.ChatMessageDao
 import com.psy.dear.data.local.dao.JournalDao
 import com.psy.dear.data.local.entity.ChatMessageEntity
@@ -17,4 +19,20 @@ import com.psy.dear.data.local.entity.JournalEntity
 abstract class AppDatabase : RoomDatabase() {
     abstract fun journalDao(): JournalDao
     abstract fun chatMessageDao(): ChatMessageDao
+
+    companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `chat_messages` (" +
+                        "`id` TEXT NOT NULL, " +
+                        "`role` TEXT NOT NULL, " +
+                        "`content` TEXT NOT NULL, " +
+                        "`emotion` TEXT, " +
+                        "`timestamp` TEXT NOT NULL, " +
+                        "PRIMARY KEY(`id`))"
+                )
+            }
+        }
+    }
 }
