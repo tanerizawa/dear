@@ -1,5 +1,5 @@
 from enum import Enum
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLAlchemyEnum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLAlchemyEnum, Boolean
 from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 import datetime
@@ -22,3 +22,4 @@ class ChatMessage(Base):
     ai_technique = Column(String, nullable=True)
     # Optional emotion label for the message
     emotion = Column(String, nullable=True)
+    is_flagged = Column(Boolean, default=False)

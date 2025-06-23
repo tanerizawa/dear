@@ -10,5 +10,6 @@ data class ChatMessageEntity(
     val role: String, // "user" or "assistant"
     val content: String,
     val emotion: String?,
-    val timestamp: OffsetDateTime
+    val timestamp: OffsetDateTime,
+    val isFlagged: Boolean = false
 )

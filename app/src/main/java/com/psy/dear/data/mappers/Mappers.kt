@@ -47,6 +47,7 @@ fun ChatMessage.toEntity(): ChatMessageEntity {
         role = this.role,
         content = this.content,
         emotion = this.emotion,
-        timestamp = this.timestamp
+        timestamp = this.timestamp,
+        isFlagged = false
     )
 }
