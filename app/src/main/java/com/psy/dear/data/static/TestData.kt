@@ -47,7 +47,14 @@ object DassTestData {
         DassQuestion("Saya merasa ingin menangis", "depression"),
         DassQuestion("Saya merasa khawatir berlebihan", "anxiety"),
         DassQuestion("Saya merasa pikiran saya sibuk dengan berbagai masalah", "stress"),
-        DassQuestion("Saya merasa tidak ada yang dapat membuat saya bahagia", "depression")
+        DassQuestion("Saya merasa tidak ada yang dapat membuat saya bahagia", "depression"),
+        // Tambahan pertanyaan untuk cakupan DASS yang lebih lengkap
+        DassQuestion("Saya merasa sulit berkonsentrasi pada apa yang saya kerjakan", "stress"),
+        DassQuestion("Saya khawatir kehilangan kendali atas pikiran saya", "anxiety"),
+        DassQuestion("Saya kehilangan minat pada kegiatan yang biasanya saya nikmati", "depression"),
+        DassQuestion("Saya merasa lelah meskipun tidak banyak beraktivitas", "depression"),
+        DassQuestion("Saya merasakan ketegangan pada otot-otot tubuh", "stress"),
+        DassQuestion("Saya terus-menerus membayangkan kemungkinan terburuk", "anxiety")
     )
     val options = listOf(
         TestOption("Tidak pernah", 0),
@@ -78,7 +85,14 @@ object MbtiTestData {
         MbtiQuestion("Anda berpendapat aturan dibuat untuk diikuti", "J", "P"),
         MbtiQuestion("Anda sering mengandalkan fakta nyata dibanding intuisi", "S", "N"),
         MbtiQuestion("Anda merasa lebih nyaman mengekspresikan diri melalui tulisan daripada bicara", "I", "E"),
-        MbtiQuestion("Anda cenderung menilai situasi secara objektif daripada subjektif", "T", "F")
+        MbtiQuestion("Anda cenderung menilai situasi secara objektif daripada subjektif", "T", "F"),
+        // Pertanyaan tambahan MBTI
+        MbtiQuestion("Anda suka berada di pusat perhatian", "E", "I"),
+        MbtiQuestion("Anda lebih suka membuat keputusan setelah semua informasi tersedia", "P", "J"),
+        MbtiQuestion("Anda merasa sulit memulai percakapan dengan orang asing", "I", "E"),
+        MbtiQuestion("Anda lebih mengandalkan fakta dan data daripada intuisi", "S", "N"),
+        MbtiQuestion("Anda menikmati menjaga jadwal yang teratur", "J", "P"),
+        MbtiQuestion("Anda lebih memilih pekerjaan yang memungkinkan ekspresi kreatif daripada tugas yang terstruktur", "N", "S")
     )
     val options = listOf(
         TestOption("Sangat tidak setuju", -2),
