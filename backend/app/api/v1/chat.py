@@ -57,7 +57,11 @@ async def handle_chat_message(
     )
 
     # 4. Panggil Generator untuk mendapatkan respons final
-    final_response = await generator.generate_response(conversation_plan, history_formatted, chat_in.message)
+    # history_formatted already contains the latest user message so we don't
+    # need to send it separately to the GeneratorService
+    final_response = await generator.generate_response(
+        conversation_plan, history_formatted
+    )
 
     # 5. Simpan respons AI ke database
     ai_message_obj = schemas.chat.ChatMessageCreate(
