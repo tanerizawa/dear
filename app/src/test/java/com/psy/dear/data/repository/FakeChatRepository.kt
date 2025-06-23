@@ -19,5 +19,5 @@ class FakeChatRepository : ChatRepository {
 
     override suspend fun deleteMessage(id: String): Result<Unit> = Result.Success(Unit)
 
-    override suspend fun setFlag(id: String, flagged: Boolean): Result<Unit> = Result.Success(Unit)
+    override suspend fun flagMessage(id: String, flagged: Boolean): Result<Unit> = Result.Success(Unit)
 }

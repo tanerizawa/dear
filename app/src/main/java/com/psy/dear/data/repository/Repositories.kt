@@ -148,7 +148,7 @@ class ChatRepositoryImpl @Inject constructor(
         Result.Error(e)
     }
 
-    override suspend fun setFlag(id: String, flagged: Boolean): Result<Unit> = try {
+    override suspend fun flagMessage(id: String, flagged: Boolean): Result<Unit> = try {
         api.setFlag(id, FlagRequest(flagged))
         dao.updateFlagById(id, flagged)
         Result.Success(Unit)

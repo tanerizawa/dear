@@ -11,6 +11,8 @@ import com.psy.dear.core.Result
 import com.psy.dear.core.UnauthorizedException
 import com.psy.dear.domain.use_case.chat.GetChatHistoryUseCase
 import com.psy.dear.domain.use_case.chat.SendMessageUseCase
+import com.psy.dear.domain.use_case.chat.DeleteMessageUseCase
+import com.psy.dear.domain.use_case.chat.FlagMessageUseCase
 import com.psy.dear.domain.model.ChatMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,7 +26,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val getChatHistoryUseCase: GetChatHistoryUseCase,
-    private val sendMessageUseCase: SendMessageUseCase
+    private val sendMessageUseCase: SendMessageUseCase,
+    private val deleteMessageUseCase: DeleteMessageUseCase,
+    private val flagMessageUseCase: FlagMessageUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf(ChatUiState())
@@ -48,6 +52,12 @@ class ChatViewModel @Inject constructor(
             }
             is ChatEvent.SendMessage -> {
                 sendMessage()
+            }
+            is ChatEvent.DeleteMessage -> {
+                deleteMessage(event.id)
+            }
+            is ChatEvent.FlagMessage -> {
+                flagMessage(event.id, event.flagged)
             }
         }
     }
@@ -91,6 +101,20 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+    private fun deleteMessage(id: String) {
+        viewModelScope.launch {
+            deleteMessageUseCase(id)
+            uiState = uiState.copy(messages = getChatHistoryUseCase().first())
+        }
+    }
+
+    private fun flagMessage(id: String, flagged: Boolean) {
+        viewModelScope.launch {
+            flagMessageUseCase(id, flagged)
+            uiState = uiState.copy(messages = getChatHistoryUseCase().first())
+        }
+    }
 }
 
 data class ChatUiState(
@@ -103,6 +127,8 @@ data class ChatUiState(
 sealed class ChatEvent {
     data class OnMessageChange(val message: String) : ChatEvent()
     object SendMessage : ChatEvent()
+    data class DeleteMessage(val id: String) : ChatEvent()
+    data class FlagMessage(val id: String, val flagged: Boolean) : ChatEvent()
 }
 
 sealed class ChatUiEvent {

@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -92,7 +94,11 @@ fun ChatScreen(
                     .padding(horizontal = 8.dp)
             ) {
                 items(uiState.messages) { message ->
-                    ChatMessageItem(message = message)
+                    ChatMessageItem(
+                        message = message,
+                        onDelete = { viewModel.onEvent(ChatEvent.DeleteMessage(message.id)) },
+                        onFlag = { flag -> viewModel.onEvent(ChatEvent.FlagMessage(message.id, flag)) }
+                    )
                 }
             }
         }
@@ -142,7 +148,11 @@ fun ChatInputBar(
 }
 
 @Composable
-fun ChatMessageItem(message: ChatMessage) {
+fun ChatMessageItem(
+    message: ChatMessage,
+    onDelete: () -> Unit,
+    onFlag: (Boolean) -> Unit
+) {
     // Tampilan sederhana untuk item chat, bisa dikembangkan lebih lanjut
     // dengan gelembung chat (chat bubble)
     // Gunakan peran ("role") pesan untuk menentukan perataan
@@ -153,11 +163,20 @@ fun ChatMessageItem(message: ChatMessage) {
             .padding(vertical = 4.dp),
         contentAlignment = alignment
     ) {
-        Text(
-            text = message.content,
-            modifier = Modifier
-                .padding(8.dp)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = message.content,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(1f)
+            )
+            IconButton(onClick = { onFlag(true) }) {
+                Icon(Icons.Default.Flag, contentDescription = "Flag")
+            }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete")
+            }
+        }
     }
 }
 
