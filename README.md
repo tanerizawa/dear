@@ -55,6 +55,14 @@ alembic revision --autogenerate -m "<description>"
 # apply migrations
 alembic upgrade head
 ```
+### Loading Sample Data
+
+After applying migrations you can populate some example articles, audio tracks and motivational quotes. Run:
+
+```bash
+make seed
+```
+
 
 ### Environment Variables
 
