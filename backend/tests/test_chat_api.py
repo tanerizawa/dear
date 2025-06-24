@@ -103,3 +103,10 @@ def test_flag_and_delete_message(client):
 
     app.dependency_overrides.pop(PlannerService, None)
     app.dependency_overrides.pop(GeneratorService, None)
+
+
+def test_flag_missing_message_returns_404(client):
+    client_app, _ = client
+
+    response = client_app.patch("/api/v1/chat/9999/flag", json={"flag": True})
+    assert response.status_code == 404
