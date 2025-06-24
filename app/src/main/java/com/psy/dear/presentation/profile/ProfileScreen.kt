@@ -44,9 +44,9 @@ fun ProfileScreen(
                 state.user != null -> {
                     ProfileContent(user = state.user!!, onLogout = viewModel::logout)
                 }
-                state.error != null -> {
+                state.error != null -> state.error?.let { error ->
                     Text(
-                        text = state.error.asString(),
+                        text = error.asString(),
                         modifier = Modifier.align(Alignment.Center),
                         color = MaterialTheme.colorScheme.error
                     )
