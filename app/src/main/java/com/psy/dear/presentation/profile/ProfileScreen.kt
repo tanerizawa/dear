@@ -39,7 +39,9 @@ fun ProfileScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                state.error != null -> Text(state.error.asString(), modifier = Modifier.align(Alignment.Center))
+                state.error != null -> state.error?.let {
+                    Text(it.asString(), modifier = Modifier.align(Alignment.Center))
+                }
                 state.user != null -> ProfileContent(user = state.user!!, onLogout = viewModel::logout)
             }
         }
