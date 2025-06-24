@@ -24,7 +24,7 @@ interface ChatApiService {
     @DELETE("chat/{id}")
     suspend fun deleteMessage(@Path("id") id: String)
 
-    @POST("chat/{id}/flag")
+    @PATCH("chat/{id}/flag")
     suspend fun setFlag(
         @Path("id") id: String,
         @Body request: FlagRequest
