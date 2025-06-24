@@ -23,11 +23,9 @@ fun ProfileScreen(
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collectLatest { event ->
-            when (event) {
-                ProfileEvent.LogoutSuccess -> {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo("main_flow") { inclusive = true }
-                    }
+            if (event == ProfileEvent.LogoutSuccess) {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo("main_flow") { inclusive = true }
                 }
             }
         }
@@ -36,12 +34,22 @@ fun ProfileScreen(
     Scaffold(
         topBar = { TopAppBar(title = { Text("Profil") }) }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
             when {
-                state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                state.user != null -> ProfileContent(user = state.user!!, onLogout = viewModel::logout)
-                else -> state.error?.let {
-                    Text(it.asString(), modifier = Modifier.align(Alignment.Center))
+                state.isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+                state.user != null -> {
+                    ProfileContent(user = state.user!!, onLogout = viewModel::logout)
+                }
+                state.error != null -> {
+                    Text(
+                        text = state.error.asString(),
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
@@ -51,13 +59,18 @@ fun ProfileScreen(
 @Composable
 fun ProfileContent(user: User, onLogout: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = user.username, style = MaterialTheme.typography.headlineMedium)
         Text(text = user.email, style = MaterialTheme.typography.bodyLarge)
         Spacer(Modifier.weight(1f))
-        Button(onClick = onLogout, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)) {
+        Button(
+            onClick = onLogout,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+        ) {
             Text("Logout")
         }
     }
