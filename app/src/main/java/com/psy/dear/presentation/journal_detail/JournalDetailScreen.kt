@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,6 +25,7 @@ fun JournalDetailScreen(
     viewModel: JournalDetailViewModel = hiltViewModel()
 ) {
     val journal by viewModel.journal.collectAsState()
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -31,7 +33,7 @@ fun JournalDetailScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 DetailEvent.DeleteSuccess -> navController.navigateUp()
-                is DetailEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString())
+                is DetailEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString(context))
             }
         }
     }

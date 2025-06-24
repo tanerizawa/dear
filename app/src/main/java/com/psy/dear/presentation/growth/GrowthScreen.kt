@@ -24,13 +24,23 @@ fun GrowthScreen(
     Scaffold(
         topBar = { TopAppBar(title = { Text("Pertumbuhan") }) }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
             when {
-                state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                state.error != null -> state.error?.let {
-                    Text(it.asString(), modifier = Modifier.align(Alignment.Center))
+                state.isLoading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
-                state.stats != null -> StatisticsContent(stats = state.stats!!)
+                state.stats != null -> {
+                    StatisticsContent(stats = state.stats!!)
+                }
+                state.error != null -> {
+                    Text(
+                        text = state.error.asString(),
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }
@@ -39,7 +49,9 @@ fun GrowthScreen(
 @Composable
 private fun StatisticsContent(stats: GrowthStatistics) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         StatCard(title = "Total Entri Jurnal", value = stats.totalJournals.toString())
