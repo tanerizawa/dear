@@ -5,8 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.pullrefresh.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,7 +43,7 @@ fun HomeScreen(
             FloatingActionButton(onClick = {
                 navController.navigate(Screen.JournalEditor.createRoute(null))
             }) {
-                Icon(Icons.Default.Add, contentDescription = "Entri Baru")
+                Icon(Icons.Outlined.Add, contentDescription = "Entri Baru")
             }
         }
     ) { padding ->
@@ -52,7 +52,7 @@ fun HomeScreen(
             if (state.isLoading && state.journals.isEmpty()) {
                 FullScreenLoading()
             } else {
-                error?.let { InfoMessage(message = it.asString(), icon = Icons.Default.CloudOff) } ?: LazyColumn(modifier = Modifier.fillMaxSize()) {
+                error?.let { InfoMessage(message = it.asString(), icon = Icons.Outlined.CloudOff) } ?: LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item { GreetingCard(state.username) }
                     item { JournalPromptCard { navController.navigate(Screen.JournalEditor.createRoute(null)) } }
                     items(state.articles) { ArticleCard(it) }

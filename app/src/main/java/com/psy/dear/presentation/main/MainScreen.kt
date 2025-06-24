@@ -16,6 +16,8 @@ import com.psy.dear.presentation.journal_detail.JournalDetailScreen
 import com.psy.dear.presentation.navigation.Screen
 import com.psy.dear.presentation.profile.ProfileScreen
 import com.psy.dear.presentation.services.ServicesScreen
+import com.psy.dear.ui.theme.DigitalPrimary
+import com.psy.dear.ui.theme.SubtleText
 
 val mainScreens = listOf(Screen.Home, Screen.Chat, Screen.Growth, Screen.Services, Screen.Profile)
 
@@ -39,7 +41,13 @@ fun MainScreen(rootNavController: NavHostController) {
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = DigitalPrimary,
+                            selectedTextColor = DigitalPrimary,
+                            unselectedIconColor = SubtleText,
+                            unselectedTextColor = SubtleText
+                        )
                     )
                 }
             }
