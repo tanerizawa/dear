@@ -5,6 +5,8 @@ import com.psy.dear.data.repository.FakeJournalRepository
 import com.psy.dear.data.repository.FakeContentRepository
 import com.psy.dear.domain.model.Journal
 import com.psy.dear.domain.model.Article
+import com.psy.dear.core.UiText
+import com.psy.dear.R
 import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
 import com.psy.dear.domain.use_case.content.GetArticlesUseCase
@@ -105,7 +107,8 @@ class HomeViewModelTest {
 
             val errorState = awaitItem()
             assertFalse(errorState.isLoading)
-            assertEquals("Sync failed", errorState.error)
+            val error = errorState.error as UiText.StringResource
+            assertEquals(R.string.error_unknown, error.resId)
         }
     }
 
