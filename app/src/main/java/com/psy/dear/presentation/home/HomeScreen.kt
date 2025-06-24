@@ -1,6 +1,5 @@
 package com.psy.dear.presentation.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +19,7 @@ import com.psy.dear.domain.model.Journal
 import com.psy.dear.core.asString
 import com.psy.dear.presentation.components.FullScreenLoading
 import com.psy.dear.presentation.components.InfoMessage
+import com.psy.dear.presentation.components.PressableCard
 import com.psy.dear.presentation.home.ArticleCard
 import com.psy.dear.presentation.home.AudioCard
 import com.psy.dear.presentation.home.GreetingCard
@@ -73,11 +73,11 @@ fun HomeScreen(
 
 @Composable
 fun JournalItem(journal: Journal, onClick: () -> Unit) {
-    Card(
+    PressableCard(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable(onClick = onClick)
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(text = journal.title, style = MaterialTheme.typography.titleLarge)

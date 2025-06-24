@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.psy.dear.domain.model.*
+import com.psy.dear.presentation.components.PressableCard
 
 @Composable
 fun GreetingCard(userName: String) {
@@ -33,10 +34,13 @@ fun JournalPromptCard(onClick: () -> Unit) {
 }
 
 @Composable
-fun ArticleCard(article: Article) {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp)) {
+fun ArticleCard(article: Article, onClick: () -> Unit = {}) {
+    PressableCard(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Column(Modifier.padding(16.dp)) {
             Text(article.title, style = MaterialTheme.typography.titleMedium)
             Text(article.url, style = MaterialTheme.typography.bodySmall)
@@ -45,10 +49,13 @@ fun ArticleCard(article: Article) {
 }
 
 @Composable
-fun AudioCard(track: AudioTrack) {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp)) {
+fun AudioCard(track: AudioTrack, onClick: () -> Unit = {}) {
+    PressableCard(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Column(Modifier.padding(16.dp)) {
             Text(track.title, style = MaterialTheme.typography.titleMedium)
             Text(track.url, style = MaterialTheme.typography.bodySmall)
@@ -57,10 +64,13 @@ fun AudioCard(track: AudioTrack) {
 }
 
 @Composable
-fun MotivationCard(quote: MotivationalQuote) {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 16.dp, vertical = 8.dp)) {
+fun MotivationCard(quote: MotivationalQuote, onClick: () -> Unit = {}) {
+    PressableCard(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
         Column(Modifier.padding(16.dp)) {
             Text("\"${quote.text}\"", style = MaterialTheme.typography.bodyMedium)
             Text("- ${quote.author}", style = MaterialTheme.typography.bodySmall)
