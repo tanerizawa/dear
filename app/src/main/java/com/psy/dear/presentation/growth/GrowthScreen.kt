@@ -27,8 +27,10 @@ fun GrowthScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                state.error != null -> Text(text = state.error.asString(), modifier = Modifier.align(Alignment.Center))
                 state.stats != null -> StatisticsContent(stats = state.stats!!)
+                else -> state.error?.let {
+                    Text(text = it.asString(), modifier = Modifier.align(Alignment.Center))
+                }
             }
         }
     }
