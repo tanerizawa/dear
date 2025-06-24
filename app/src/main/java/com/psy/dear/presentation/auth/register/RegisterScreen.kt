@@ -22,7 +22,9 @@ fun RegisterScreen(
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val isEmailValid by derivedStateOf { Patterns.EMAIL_ADDRESS.matcher(email).matches() }
+    val isEmailValid by remember(email) {
+        derivedStateOf { Patterns.EMAIL_ADDRESS.matcher(email).matches() }
+    }
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
