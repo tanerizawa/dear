@@ -48,15 +48,11 @@ fun HomeScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding).pullRefresh(pullRefreshState)) {
+            val error = state.error
             if (state.isLoading && state.journals.isEmpty()) {
                 FullScreenLoading()
-            } else if (state.error != null) {
-                InfoMessage(
-                    message = state.error.asString(),
-                    icon = Icons.Default.CloudOff
-                )
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                error?.let { InfoMessage(message = it.asString(), icon = Icons.Default.CloudOff) } ?: LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item { GreetingCard("User") }
                     item { JournalPromptCard { navController.navigate(Screen.JournalEditor.createRoute(null)) } }
                     items(state.articles) { ArticleCard(it) }
