@@ -25,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.psy.dear.presentation.chat.ChatBubbleTail
 import androidx.navigation.NavController
 import com.psy.dear.domain.model.ChatMessage
 import com.psy.dear.ui.theme.ChatAppBar
@@ -250,22 +249,5 @@ fun ChatMessageItem(
             }
         }
         if (isUser) ChatBubbleTail(color = UserBubble, isUser = true)
-    }
-}
-
-@Composable
-fun TypingIndicator() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Text(
-            text = "Dear is typing...",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
     }
 }
