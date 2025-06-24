@@ -1,5 +1,3 @@
-// di app/src/main/java/com/psy/dear/presentation/chat/ChatViewModel.kt
-
 package com.psy.dear.presentation.chat
 
 import androidx.compose.runtime.getValue
