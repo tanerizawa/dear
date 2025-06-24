@@ -53,7 +53,7 @@ fun HomeScreen(
                 FullScreenLoading()
             } else {
                 error?.let { InfoMessage(message = it.asString(), icon = Icons.Default.CloudOff) } ?: LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item { GreetingCard("User") }
+                    item { GreetingCard(state.username) }
                     item { JournalPromptCard { navController.navigate(Screen.JournalEditor.createRoute(null)) } }
                     items(state.articles) { ArticleCard(it) }
                     items(state.audio) { AudioCard(it) }
