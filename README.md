@@ -122,3 +122,8 @@ pytest backend/tests
 ## Contributing
 
 Contributions are welcome! Please open issues or pull requests on GitHub. Make sure to format code and provide tests where relevant.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
