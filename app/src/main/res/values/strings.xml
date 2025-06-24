@@ -35,4 +35,9 @@
     <string name="profile_title">Profil</string>
     <string name="profile_logout_button">Logout</string>
 
+    <!-- Generic Errors -->
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_unauthorized">Unauthorized. Please log in again.</string>
+    <string name="error_unknown">An unexpected error occurred.</string>
+
 </resources>

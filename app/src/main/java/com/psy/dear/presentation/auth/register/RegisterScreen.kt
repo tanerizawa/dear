@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import android.util.Patterns
 import kotlinx.coroutines.flow.collectLatest
+import com.psy.dear.core.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +28,7 @@ fun RegisterScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is RegisterEvent.RegisterSuccess -> onRegisterSuccess()
-                is RegisterEvent.ShowError -> snackbarHostState.showSnackbar(event.message)
+                is RegisterEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString())
             }
         }
     }

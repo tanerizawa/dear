@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
 import com.psy.dear.core.UnauthorizedException
+import com.psy.dear.core.ErrorMapper
+import com.psy.dear.core.UiText
 import com.psy.dear.domain.use_case.chat.GetChatHistoryUseCase
 import com.psy.dear.domain.use_case.chat.SendMessageUseCase
 import com.psy.dear.domain.use_case.chat.DeleteMessageUseCase
@@ -88,7 +90,7 @@ class ChatViewModel @Inject constructor(
                         if (result.exception is UnauthorizedException) {
                             _eventFlow.emit(ChatUiEvent.NavigateToLogin)
                         }
-                        uiState = uiState.copy(error = result.exception?.message ?: "An unknown error occurred")
+                        uiState = uiState.copy(error = UiText.StringResource(ErrorMapper.map(result.exception)))
                     }
                     is Result.Loading -> {}
                 }
@@ -145,7 +147,7 @@ data class ChatUiState(
     val messages: List<ChatMessage> = emptyList(),
     val currentMessage: String = "",
     val isSending: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
     val selectionMode: Boolean = false,
     val selectedIds: Set<String> = emptySet()
 )

@@ -32,6 +32,7 @@ import com.psy.dear.ui.theme.ChatBackground
 import com.psy.dear.ui.theme.OtherBubble
 import com.psy.dear.ui.theme.UserBubble
 import com.psy.dear.ui.theme.IconInactive
+import com.psy.dear.core.asString
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.collectLatest
 
@@ -85,7 +86,7 @@ fun ChatScreen(
         ) {
             if (uiState.error != null) {
                 Text(
-                    text = uiState.error,
+                    text = uiState.error.asString(),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier

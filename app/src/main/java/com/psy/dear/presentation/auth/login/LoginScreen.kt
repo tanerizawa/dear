@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.psy.dear.R
 import kotlinx.coroutines.flow.collectLatest
+import com.psy.dear.core.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +27,7 @@ fun LoginScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> onLoginSuccess()
-                is LoginEvent.ShowError -> snackbarHostState.showSnackbar(event.message)
+                is LoginEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString())
             }
         }
     }

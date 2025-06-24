@@ -3,6 +3,8 @@ package com.psy.dear.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
+import com.psy.dear.core.ErrorMapper
+import com.psy.dear.core.UiText
 import com.psy.dear.domain.model.Journal
 import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
@@ -14,7 +16,7 @@ import javax.inject.Inject
 data class HomeState(
     val journals: List<Journal> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UiText? = null
 )
 
 @HiltViewModel
@@ -43,7 +45,7 @@ class HomeViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     isLoading = false,
-                    error = if (result is Result.Error) result.exception?.message else null
+                    error = if (result is Result.Error) UiText.StringResource(ErrorMapper.map(result.exception)) else null
                 )
             }
         }

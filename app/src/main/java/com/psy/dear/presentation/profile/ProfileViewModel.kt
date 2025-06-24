@@ -3,6 +3,8 @@ package com.psy.dear.presentation.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
+import com.psy.dear.core.ErrorMapper
+import com.psy.dear.core.UiText
 import com.psy.dear.domain.model.User
 import com.psy.dear.domain.use_case.auth.LogoutUseCase
 import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
@@ -17,7 +19,7 @@ import javax.inject.Inject
 data class ProfileState(
     val user: User? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UiText? = null
 )
 
 sealed class ProfileEvent {
@@ -45,7 +47,7 @@ class ProfileViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true)
             when (val result = getUserProfileUseCase()) {
                 is Result.Success -> _state.value = ProfileState(user = result.data)
-                is Result.Error -> _state.value = ProfileState(error = result.exception?.message)
+                is Result.Error -> _state.value = ProfileState(error = UiText.StringResource(ErrorMapper.map(result.exception)))
                 is Result.Loading -> {}
             }
         }

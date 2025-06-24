@@ -6,6 +6,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
+import com.psy.dear.core.ErrorMapper
+import com.psy.dear.core.UiText
 import com.psy.dear.domain.use_case.journal.GetJournalByIdUseCase
 import com.psy.dear.domain.use_case.journal.SaveJournalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +20,7 @@ import javax.inject.Inject
 
 sealed class EditorEvent {
     object SaveSuccess : EditorEvent()
-    data class ShowError(val message: String) : EditorEvent()
+    data class ShowError(val message: UiText) : EditorEvent()
 }
 
 @HiltViewModel
@@ -77,7 +79,7 @@ class JournalEditorViewModel @Inject constructor(
             )
             when (result) {
                 is Result.Success -> _eventFlow.emit(EditorEvent.SaveSuccess)
-                is Result.Error -> _eventFlow.emit(EditorEvent.ShowError(result.exception?.message ?: "Gagal menyimpan"))
+                is Result.Error -> _eventFlow.emit(EditorEvent.ShowError(UiText.StringResource(ErrorMapper.map(result.exception))))
                 else -> {}
             }
         }
