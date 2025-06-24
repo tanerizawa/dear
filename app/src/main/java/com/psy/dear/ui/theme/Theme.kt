@@ -16,15 +16,19 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = DigitalPrimary,
+    secondary = DigitalSecondary,
+    tertiary = Pink80,
+    background = DigitalBackground,
+    surface = DigitalSurface
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = DigitalPrimary,
+    secondary = DigitalSecondary,
+    tertiary = Pink40,
+    background = DigitalBackground,
+    surface = DigitalSurface
 )
 
 @Composable
@@ -53,6 +57,7 @@ fun DearTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }
