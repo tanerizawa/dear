@@ -36,3 +36,8 @@ data class UserProfileResponse(
     val username: String,
     val email: String
 )
+
+// ContentDtos
+data class ArticleResponse(val id: String, val title: String, val url: String)
+data class AudioTrackResponse(val id: String, val title: String, val url: String)
+data class MotivationalQuoteResponse(val id: String, val text: String, val author: String)

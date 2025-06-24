@@ -20,6 +20,11 @@ import com.psy.dear.domain.model.Journal
 import com.psy.dear.core.asString
 import com.psy.dear.presentation.components.FullScreenLoading
 import com.psy.dear.presentation.components.InfoMessage
+import com.psy.dear.presentation.home.ArticleCard
+import com.psy.dear.presentation.home.AudioCard
+import com.psy.dear.presentation.home.GreetingCard
+import com.psy.dear.presentation.home.JournalPromptCard
+import com.psy.dear.presentation.home.MotivationCard
 import com.psy.dear.presentation.navigation.Screen
 import java.time.format.DateTimeFormatter
 
@@ -50,10 +55,13 @@ fun HomeScreen(
                     message = state.error.asString(),
                     icon = Icons.Default.CloudOff
                 )
-            } else if (state.journals.isEmpty()) {
-                InfoMessage(message = "Belum ada entri jurnal.\nTekan '+' untuk memulai.")
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    item { GreetingCard("User") }
+                    item { JournalPromptCard { navController.navigate(Screen.JournalEditor.createRoute(null)) } }
+                    items(state.articles) { ArticleCard(it) }
+                    items(state.audio) { AudioCard(it) }
+                    items(state.quotes) { MotivationCard(it) }
                     items(state.journals, key = { it.id }) { journal ->
                         JournalItem(
                             journal = journal,

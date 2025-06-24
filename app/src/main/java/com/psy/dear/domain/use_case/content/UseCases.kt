@@ -1,0 +1,20 @@
+package com.psy.dear.domain.use_case.content
+
+import com.psy.dear.domain.model.Article
+import com.psy.dear.domain.model.AudioTrack
+import com.psy.dear.domain.model.MotivationalQuote
+import com.psy.dear.domain.repository.ContentRepository
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+
+class GetArticlesUseCase @Inject constructor(private val repo: ContentRepository) {
+    operator fun invoke(): Flow<List<Article>> = repo.getArticles()
+}
+
+class GetAudioTracksUseCase @Inject constructor(private val repo: ContentRepository) {
+    operator fun invoke(): Flow<List<AudioTrack>> = repo.getAudioTracks()
+}
+
+class GetQuotesUseCase @Inject constructor(private val repo: ContentRepository) {
+    operator fun invoke(): Flow<List<MotivationalQuote>> = repo.getQuotes()
+}

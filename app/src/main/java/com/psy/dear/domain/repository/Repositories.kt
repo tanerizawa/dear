@@ -31,3 +31,9 @@ interface ChatRepository {
     suspend fun deleteMessage(id: String): Result<Unit>
     suspend fun flagMessage(id: String, flagged: Boolean): Result<Unit>
 }
+
+interface ContentRepository {
+    fun getArticles(): Flow<List<Article>>
+    fun getAudioTracks(): Flow<List<AudioTrack>>
+    fun getQuotes(): Flow<List<MotivationalQuote>>
+}

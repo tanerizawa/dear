@@ -35,3 +35,14 @@ interface UserApiService {
     @GET("users/me")
     suspend fun getProfile(): UserProfileResponse
 }
+
+interface ContentApiService {
+    @GET("articles")
+    suspend fun getArticles(): List<ArticleResponse>
+
+    @GET("audio")
+    suspend fun getAudio(): List<AudioTrackResponse>
+
+    @GET("quotes")
+    suspend fun getQuotes(): List<MotivationalQuoteResponse>
+}
