@@ -10,6 +10,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.psy.dear.domain.model.User
 import com.psy.dear.presentation.navigation.Screen
+import com.psy.dear.core.asString
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +39,7 @@ fun ProfileScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                state.error != null -> Text(state.error!!, modifier = Modifier.align(Alignment.Center))
+                state.error != null -> Text(state.error.asString(), modifier = Modifier.align(Alignment.Center))
                 state.user != null -> ProfileContent(user = state.user!!, onLogout = viewModel::logout)
             }
         }

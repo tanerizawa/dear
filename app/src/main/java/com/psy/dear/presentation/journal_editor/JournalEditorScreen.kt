@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
+import com.psy.dear.core.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +24,7 @@ fun JournalEditorScreen(
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is EditorEvent.SaveSuccess -> navController.navigateUp()
-                is EditorEvent.ShowError -> snackbarHostState.showSnackbar(event.message)
+                is EditorEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString())
             }
         }
     }

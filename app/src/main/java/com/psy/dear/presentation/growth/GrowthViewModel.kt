@@ -3,6 +3,8 @@ package com.psy.dear.presentation.growth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
+import com.psy.dear.core.ErrorMapper
+import com.psy.dear.core.UiText
 import com.psy.dear.domain.model.GrowthStatistics
 import com.psy.dear.domain.use_case.journal.GetGrowthStatisticsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +16,7 @@ import javax.inject.Inject
 data class GrowthState(
     val stats: GrowthStatistics? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UiText? = null
 )
 
 @HiltViewModel
@@ -34,7 +36,7 @@ class GrowthViewModel @Inject constructor(
             _state.value = GrowthState(isLoading = true)
             when (val result = getGrowthStatisticsUseCase()) {
                 is Result.Success -> _state.value = GrowthState(stats = result.data)
-                is Result.Error -> _state.value = GrowthState(error = result.exception?.message)
+                is Result.Error -> _state.value = GrowthState(error = UiText.StringResource(ErrorMapper.map(result.exception)))
                 else -> {}
             }
         }

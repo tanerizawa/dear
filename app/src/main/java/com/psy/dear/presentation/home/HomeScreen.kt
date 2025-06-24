@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.psy.dear.domain.model.Journal
+import com.psy.dear.core.asString
 import com.psy.dear.presentation.components.FullScreenLoading
 import com.psy.dear.presentation.components.InfoMessage
 import com.psy.dear.presentation.navigation.Screen
@@ -46,7 +47,7 @@ fun HomeScreen(
                 FullScreenLoading()
             } else if (state.error != null) {
                 InfoMessage(
-                    message = "Gagal memuat data. ${state.error}",
+                    message = state.error.asString(),
                     icon = Icons.Default.CloudOff
                 )
             } else if (state.journals.isEmpty()) {

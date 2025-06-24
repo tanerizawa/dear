@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.psy.dear.domain.model.GrowthStatistics
+import com.psy.dear.core.asString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +27,7 @@ fun GrowthScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
                 state.isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                state.error != null -> Text(text = state.error!!, modifier = Modifier.align(Alignment.Center))
+                state.error != null -> Text(text = state.error.asString(), modifier = Modifier.align(Alignment.Center))
                 state.stats != null -> StatisticsContent(stats = state.stats!!)
             }
         }
