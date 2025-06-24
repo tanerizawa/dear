@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 sealed class LoginEvent {
     object LoginSuccess : LoginEvent()
     data class ShowError(val message: UiText) : LoginEvent()
@@ -26,9 +27,11 @@ class LoginViewModel @Inject constructor(
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
-            when(val result = loginUseCase(email, password)) {
+            when (val result = loginUseCase(email, password)) {
                 is Result.Success -> _eventFlow.emit(LoginEvent.LoginSuccess)
-                is Result.Error -> _eventFlow.emit(LoginEvent.ShowError(UiText.StringResource(ErrorMapper.map(result.exception))))
+                is Result.Error -> _eventFlow.emit(
+                    LoginEvent.ShowError(UiText.StringResource(ErrorMapper.map(result.exception)))
+                )
                 else -> {}
             }
         }

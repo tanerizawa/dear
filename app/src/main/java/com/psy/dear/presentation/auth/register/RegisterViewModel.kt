@@ -34,9 +34,11 @@ class RegisterViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            when(val result = registerUseCase(username, email, password)) {
+            when (val result = registerUseCase(username, email, password)) {
                 is Result.Success -> _eventFlow.emit(RegisterEvent.RegisterSuccess)
-                is Result.Error -> _eventFlow.emit(RegisterEvent.ShowError(UiText.StringResource(ErrorMapper.map(result.exception))))
+                is Result.Error -> _eventFlow.emit(
+                    RegisterEvent.ShowError(UiText.StringResource(ErrorMapper.map(result.exception)))
+                    )
                 else -> {}
             }
         }

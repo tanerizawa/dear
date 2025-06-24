@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.flow.collectLatest
+import com.psy.dear.core.asString  // ✅ penting
 import com.psy.dear.ui.utils.showSnackbar
 
 @OptIn(ExperimentalMaterial3Api::class)
