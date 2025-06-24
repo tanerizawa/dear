@@ -16,3 +16,9 @@ val UserBubble = Color(0xFFDCF8C6)
 val OtherBubble = Color(0xFFFFFFFF)
 val ChatAppBar = Color(0xFF075E54)
 val IconInactive = Color(0xFFAAB8B8)
+
+// Digital theme colors
+val DigitalBackground = Color(0xFF101010)
+val DigitalSurface = Color(0xFF1E1E1E)
+val DigitalPrimary = Color(0xFF00C853)
+val DigitalSecondary = Color(0xFF64DD17)
