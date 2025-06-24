@@ -3,9 +3,11 @@ package com.psy.dear.presentation.auth.login
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.psy.dear.R
@@ -21,13 +23,15 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> onLoginSuccess()
-                is LoginEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString())
+                is LoginEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString(context))
             }
         }
     }
