@@ -11,6 +11,7 @@ import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
 import com.psy.dear.domain.use_case.content.GetArticlesUseCase
 import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
 import com.psy.dear.domain.use_case.content.GetQuotesUseCase
+import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,7 +23,8 @@ data class HomeState(
     val audio: List<AudioTrack> = emptyList(),
     val quotes: List<MotivationalQuote> = emptyList(),
     val isLoading: Boolean = false,
-    val error: UiText? = null
+    val error: UiText? = null,
+    val username: String = "User"
 )
 
 @HiltViewModel
@@ -31,7 +33,8 @@ class HomeViewModel @Inject constructor(
     private val syncJournalsUseCase: SyncJournalsUseCase,
     getArticlesUseCase: GetArticlesUseCase,
     getAudioTracksUseCase: GetAudioTracksUseCase,
-    getQuotesUseCase: GetQuotesUseCase
+    getQuotesUseCase: GetQuotesUseCase,
+    private val getUserProfileUseCase: GetUserProfileUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -61,6 +64,13 @@ class HomeViewModel @Inject constructor(
                 _state.update { it.copy(quotes = quotes) }
             }
             .launchIn(viewModelScope)
+
+        viewModelScope.launch {
+            when (val result = getUserProfileUseCase()) {
+                is Result.Success -> _state.update { it.copy(username = result.data.username) }
+                else -> {}
+            }
+        }
 
         refresh()
     }

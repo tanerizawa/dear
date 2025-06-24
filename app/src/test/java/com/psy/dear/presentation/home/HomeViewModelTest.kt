@@ -3,6 +3,7 @@ package com.psy.dear.presentation.home
 import app.cash.turbine.test
 import com.psy.dear.data.repository.FakeJournalRepository
 import com.psy.dear.data.repository.FakeContentRepository
+import com.psy.dear.data.repository.FakeUserRepository
 import com.psy.dear.domain.model.Journal
 import com.psy.dear.domain.model.Article
 import com.psy.dear.core.UiText
@@ -12,6 +13,7 @@ import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
 import com.psy.dear.domain.use_case.content.GetArticlesUseCase
 import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
 import com.psy.dear.domain.use_case.content.GetQuotesUseCase
+import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import com.psy.dear.util.TestCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -33,21 +35,25 @@ class HomeViewModelTest {
     private lateinit var viewModel: HomeViewModel
     private lateinit var fakeRepository: FakeJournalRepository
     private lateinit var fakeContentRepo: FakeContentRepository
+    private lateinit var fakeUserRepo: FakeUserRepository
     private lateinit var getJournalsUseCase: GetJournalsUseCase
     private lateinit var syncJournalsUseCase: SyncJournalsUseCase
     private lateinit var getArticles: GetArticlesUseCase
     private lateinit var getAudio: GetAudioTracksUseCase
     private lateinit var getQuotes: GetQuotesUseCase
+    private lateinit var getUserProfile: GetUserProfileUseCase
 
     @Before
     fun setUp() {
         fakeRepository = FakeJournalRepository()
         fakeContentRepo = FakeContentRepository()
+        fakeUserRepo = FakeUserRepository()
         getJournalsUseCase = GetJournalsUseCase(fakeRepository)
         syncJournalsUseCase = SyncJournalsUseCase(fakeRepository)
         getArticles = GetArticlesUseCase(fakeContentRepo)
         getAudio = GetAudioTracksUseCase(fakeContentRepo)
         getQuotes = GetQuotesUseCase(fakeContentRepo)
+        getUserProfile = GetUserProfileUseCase(fakeUserRepo)
 
         // Tambahkan beberapa data dummy
         fakeRepository.addJournal(Journal("1", "Test 1", "Content 1", "Happy", OffsetDateTime.now()))
@@ -57,7 +63,8 @@ class HomeViewModelTest {
             syncJournalsUseCase,
             getArticles,
             getAudio,
-            getQuotes
+            getQuotes,
+            getUserProfile
         )
     }
 
@@ -70,6 +77,7 @@ class HomeViewModelTest {
             assertEquals("Test 1", initialState.journals[0].title)
             assertFalse(initialState.isLoading)
             assertNull(initialState.error)
+            assertEquals("TestUser", initialState.username)
         }
     }
 
