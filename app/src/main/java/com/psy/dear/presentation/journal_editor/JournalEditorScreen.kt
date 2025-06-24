@@ -3,6 +3,7 @@ package com.psy.dear.presentation.journal_editor
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,13 +19,14 @@ fun JournalEditorScreen(
 ) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.eventFlow.collectLatest { event ->
             when (event) {
                 is EditorEvent.SaveSuccess -> navController.navigateUp()
-                is EditorEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString())
+                is EditorEvent.ShowError -> snackbarHostState.showSnackbar(event.message.asString(context))
             }
         }
     }
