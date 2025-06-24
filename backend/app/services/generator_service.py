@@ -95,4 +95,4 @@ class GeneratorService:
 
         except Exception as e:
             self.log.error("generator_service_error", error=str(e))
-            return "Maaf, ada gangguan teknis. Bisa kamu ulangi lagi?"
+            return "Maaf, ada gangguan teknis. I'm listening, bisa kamu ulangi lagi?"
