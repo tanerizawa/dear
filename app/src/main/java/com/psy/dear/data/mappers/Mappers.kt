@@ -4,7 +4,10 @@ import com.psy.dear.data.local.entity.ChatMessageEntity
 import com.psy.dear.data.local.entity.JournalEntity
 import com.psy.dear.domain.model.ChatMessage
 import com.psy.dear.domain.model.Journal
-import com.psy.dear.data.network.dto.JournalResponse
+import com.psy.dear.data.network.dto.*
+import com.psy.dear.domain.model.Article
+import com.psy.dear.domain.model.AudioTrack
+import com.psy.dear.domain.model.MotivationalQuote
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -51,3 +54,7 @@ fun ChatMessage.toEntity(): ChatMessageEntity {
         isFlagged = false
     )
 }
+
+fun ArticleResponse.toDomain() = Article(id, title, url)
+fun AudioTrackResponse.toDomain() = AudioTrack(id, title, url)
+fun MotivationalQuoteResponse.toDomain() = MotivationalQuote(id, text, author)

@@ -2,9 +2,14 @@ package com.psy.dear.presentation.home
 
 import app.cash.turbine.test
 import com.psy.dear.data.repository.FakeJournalRepository
+import com.psy.dear.data.repository.FakeContentRepository
 import com.psy.dear.domain.model.Journal
+import com.psy.dear.domain.model.Article
 import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
+import com.psy.dear.domain.use_case.content.GetArticlesUseCase
+import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
+import com.psy.dear.domain.use_case.content.GetQuotesUseCase
 import com.psy.dear.util.TestCoroutineRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -25,19 +30,33 @@ class HomeViewModelTest {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var fakeRepository: FakeJournalRepository
+    private lateinit var fakeContentRepo: FakeContentRepository
     private lateinit var getJournalsUseCase: GetJournalsUseCase
     private lateinit var syncJournalsUseCase: SyncJournalsUseCase
+    private lateinit var getArticles: GetArticlesUseCase
+    private lateinit var getAudio: GetAudioTracksUseCase
+    private lateinit var getQuotes: GetQuotesUseCase
 
     @Before
     fun setUp() {
         fakeRepository = FakeJournalRepository()
+        fakeContentRepo = FakeContentRepository()
         getJournalsUseCase = GetJournalsUseCase(fakeRepository)
         syncJournalsUseCase = SyncJournalsUseCase(fakeRepository)
+        getArticles = GetArticlesUseCase(fakeContentRepo)
+        getAudio = GetAudioTracksUseCase(fakeContentRepo)
+        getQuotes = GetQuotesUseCase(fakeContentRepo)
 
         // Tambahkan beberapa data dummy
         fakeRepository.addJournal(Journal("1", "Test 1", "Content 1", "Happy", OffsetDateTime.now()))
 
-        viewModel = HomeViewModel(getJournalsUseCase, syncJournalsUseCase)
+        viewModel = HomeViewModel(
+            getJournalsUseCase,
+            syncJournalsUseCase,
+            getArticles,
+            getAudio,
+            getQuotes
+        )
     }
 
     @Test
@@ -87,6 +106,17 @@ class HomeViewModelTest {
             val errorState = awaitItem()
             assertFalse(errorState.isLoading)
             assertEquals("Sync failed", errorState.error)
+        }
+    }
+
+    @Test
+    fun `articles emitted to state`() = runTest {
+        fakeContentRepo.setArticles(listOf(Article("1", "A", "url")))
+
+        viewModel.state.test {
+            val initial = awaitItem()
+            assertEquals(1, initial.articles.size)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }

@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
 import com.psy.dear.core.ErrorMapper
 import com.psy.dear.core.UiText
-import com.psy.dear.domain.model.Journal
+import com.psy.dear.domain.model.*
 import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
+import com.psy.dear.domain.use_case.content.GetArticlesUseCase
+import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
+import com.psy.dear.domain.use_case.content.GetQuotesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -15,6 +18,9 @@ import javax.inject.Inject
 
 data class HomeState(
     val journals: List<Journal> = emptyList(),
+    val articles: List<Article> = emptyList(),
+    val audio: List<AudioTrack> = emptyList(),
+    val quotes: List<MotivationalQuote> = emptyList(),
     val isLoading: Boolean = false,
     val error: UiText? = null
 )
@@ -22,7 +28,10 @@ data class HomeState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     getJournalsUseCase: GetJournalsUseCase,
-    private val syncJournalsUseCase: SyncJournalsUseCase
+    private val syncJournalsUseCase: SyncJournalsUseCase,
+    getArticlesUseCase: GetArticlesUseCase,
+    getAudioTracksUseCase: GetAudioTracksUseCase,
+    getQuotesUseCase: GetQuotesUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -32,6 +41,24 @@ class HomeViewModel @Inject constructor(
         getJournalsUseCase()
             .onEach { journals ->
                 _state.update { it.copy(journals = journals, error = null) }
+            }
+            .launchIn(viewModelScope)
+
+        getArticlesUseCase()
+            .onEach { articles ->
+                _state.update { it.copy(articles = articles) }
+            }
+            .launchIn(viewModelScope)
+
+        getAudioTracksUseCase()
+            .onEach { tracks ->
+                _state.update { it.copy(audio = tracks) }
+            }
+            .launchIn(viewModelScope)
+
+        getQuotesUseCase()
+            .onEach { quotes ->
+                _state.update { it.copy(quotes = quotes) }
             }
             .launchIn(viewModelScope)
 

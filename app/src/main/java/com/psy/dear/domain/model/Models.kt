@@ -35,3 +35,21 @@ data class TestOption(val text: String, val value: Int)
 data class DassQuestion(val text: String, val scale: String)
 
 data class MbtiQuestion(val text: String, val positivePole: String, val negativePole: String)
+
+data class Article(
+    val id: String,
+    val title: String,
+    val url: String
+)
+
+data class AudioTrack(
+    val id: String,
+    val title: String,
+    val url: String
+)
+
+data class MotivationalQuote(
+    val id: String,
+    val text: String,
+    val author: String
+)

@@ -10,6 +10,7 @@ import com.psy.dear.data.network.api.AuthApiService
 import com.psy.dear.data.network.api.ChatApiService
 import com.psy.dear.data.network.api.JournalApiService
 import com.psy.dear.data.network.api.UserApiService
+import com.psy.dear.data.network.api.ContentApiService
 import com.psy.dear.core.UnauthorizedException
 import com.psy.dear.data.network.dto.ChatRequest
 import com.psy.dear.data.network.dto.CreateJournalRequest
@@ -21,9 +22,11 @@ import com.psy.dear.domain.repository.AuthRepository
 import com.psy.dear.domain.repository.ChatRepository
 import com.psy.dear.domain.repository.JournalRepository
 import com.psy.dear.domain.repository.UserRepository
+import com.psy.dear.domain.repository.ContentRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
 import java.time.OffsetDateTime
 import java.util.*
 import javax.inject.Inject
@@ -153,5 +156,22 @@ class ChatRepositoryImpl @Inject constructor(
         Result.Success(Unit)
     } catch (e: Exception) {
         Result.Error(e)
+    }
+}
+
+@Singleton
+class ContentRepositoryImpl @Inject constructor(
+    private val api: ContentApiService
+) : ContentRepository {
+    override fun getArticles(): Flow<List<Article>> = flow {
+        emit(api.getArticles().map { it.toDomain() })
+    }
+
+    override fun getAudioTracks(): Flow<List<AudioTrack>> = flow {
+        emit(api.getAudio().map { it.toDomain() })
+    }
+
+    override fun getQuotes(): Flow<List<MotivationalQuote>> = flow {
+        emit(api.getQuotes().map { it.toDomain() })
     }
 }
