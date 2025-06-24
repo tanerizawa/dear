@@ -17,6 +17,9 @@ val OtherBubble = Color(0xFFFFFFFF)
 val ChatAppBar = Color(0xFF075E54)
 val IconInactive = Color(0xFFAAB8B8)
 
+// Neutral text/icon color for inactive states
+val SubtleText = Color(0xFFAAB8B8)
+
 // Digital theme colors
 val DigitalBackground = Color(0xFF101010)
 val DigitalSurface = Color(0xFF1E1E1E)

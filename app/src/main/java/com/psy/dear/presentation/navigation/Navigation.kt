@@ -2,7 +2,7 @@ package com.psy.dear.presentation.navigation
 
 import androidx.compose.animation.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
@@ -26,11 +26,11 @@ sealed class Screen(val route: String, val title: String? = null, val icon: Imag
     object Login : Screen("login")
     object Register : Screen("register")
 
-    object Home : Screen("home", "Beranda", Icons.Default.Home)
-    object Chat : Screen("chat", "Chat", Icons.Default.ChatBubble)
-    object Growth : Screen("growth", "Pertumbuhan", Icons.Default.ShowChart)
-    object Services : Screen("services", "Layanan", Icons.Default.Favorite)
-    object Profile : Screen("profile", "Profil", Icons.Default.Person)
+    object Home : Screen("home", "Beranda", Icons.Outlined.Home)
+    object Chat : Screen("chat", "Chat", Icons.Outlined.ChatBubbleOutline)
+    object Growth : Screen("growth", "Pertumbuhan", Icons.Outlined.ShowChart)
+    object Services : Screen("services", "Layanan", Icons.Outlined.FavoriteBorder)
+    object Profile : Screen("profile", "Profil", Icons.Outlined.PersonOutline)
 
     object JournalEditor : Screen("journal_editor?journalId={journalId}") {
         fun createRoute(journalId: String?): String = "journal_editor?journalId=$journalId"
