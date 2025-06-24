@@ -74,7 +74,7 @@ APP_NAME=Dear Diary
 ## Usage
 
 
-Run the backend and then launch the Android app. The app communicates with the API under `http://localhost:8000/api/v1`.
+Run the backend and then launch the Android app. The base URL used by the Android app is provided via `BuildConfig`. Debug builds point to `http://10.0.2.2:8000/api/v1/` so the emulator can reach your machine, while release builds default to `https://yourdomain.com/api/v1/`.
 
 ### Android Usage
 

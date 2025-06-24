@@ -3,6 +3,7 @@ package com.psy.dear.di
 import com.psy.dear.data.datastore.UserPreferencesRepository
 import com.psy.dear.data.network.AuthInterceptor
 import com.psy.dear.data.network.api.*
+import com.psy.dear.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,9 +18,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // Base URL for the FastAPI backend. Adjust as needed for your environment.
-    // Use 10.0.2.2 when running on an Android emulator to reach localhost.
-    private const val BASE_URL = "http://10.0.2.2:8000/api/v1/"
+    // Base URL for the FastAPI backend is provided via BuildConfig.
+
 
     @Provides
     @Singleton
@@ -46,7 +46,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
