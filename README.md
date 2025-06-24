@@ -44,6 +44,18 @@ pip install -r backend/requirements.txt
 cd backend && uvicorn app.main:app --reload
 ```
 
+### Database Migrations
+
+Alembic handles schema migrations. Common commands:
+
+```bash
+# create a new revision after editing models
+alembic revision --autogenerate -m "<description>"
+
+# apply migrations
+alembic upgrade head
+```
+
 ### Environment Variables
 
 The backend reads several variables from the environment:
