@@ -20,3 +20,8 @@ fun UiText.asString(): String = when (this) {
     is UiText.DynamicString -> value
     is UiText.StringResource -> stringResource(id = resId)
 }
+
+fun UiText.asString(context: Context): String = when (this) {
+    is UiText.DynamicString -> value
+    is UiText.StringResource -> context.getString(resId)
+}
