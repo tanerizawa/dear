@@ -14,7 +14,7 @@ import com.psy.dear.presentation.components.PressableCard
 
 @Composable
 fun GreetingCard(userName: String) {
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(16.dp)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -50,7 +50,7 @@ fun GreetingCard(userName: String) {
 
 @Composable
 fun JournalPromptCard(onClick: () -> Unit) {
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(16.dp)
     Card(
         modifier = Modifier
             .fillMaxWidth()
