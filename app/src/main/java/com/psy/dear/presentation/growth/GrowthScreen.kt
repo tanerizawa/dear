@@ -34,13 +34,13 @@ fun GrowthScreen(
                 state.stats != null -> {
                     StatisticsContent(stats = state.stats!!)
                 }
-                state.error != null -> state.error?.let { error ->
-                    Text(
-                        text = error.asString(),
-                        modifier = Modifier.align(Alignment.Center),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
+            }
+            state.error?.let { error ->
+                Text(
+                    text = error.asString(),
+                    modifier = Modifier.align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
