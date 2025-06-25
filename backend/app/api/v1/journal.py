@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.dependencies import get_db, get_current_user
 # Hapus atau ganti baris di bawah ini jika ada
-from app.services.profile_analyzer_service import profile_analyzer
 from app.tasks import analyze_profile_task
 import structlog
 
