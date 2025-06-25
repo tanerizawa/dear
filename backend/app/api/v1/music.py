@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ytmusicapi import YTMusic
 from app.dependencies import get_current_user
 from app.models.user import User
-import yt_dlp
 from app import schemas
 
 router = APIRouter()
@@ -20,42 +19,33 @@ def search_music(
 
     search_results = ytmusic.search(query=mood, filter="songs", limit=20)
 
-    ydl_opts = {
-        'format': 'bestaudio[ext=m4a]/bestaudio/best',
-        'quiet': True,
-        'no_warnings': True,
-        'force_generic_extractor': True,
-    }
-
     musics = []
-    video_id_counter = 1
 
-    for track in search_results:
-        try:
-            video_id = track.get("videoId")
-            title = track.get("title")
-
-            if not video_id or not title:
-                continue
-
-            url = f"https://www.youtube.com/watch?v={video_id}"
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                streaming_url = info.get("url")
-
-            if streaming_url:
-                musics.append(
-                    schemas.AudioTrack(
-                        id=video_id_counter,
-                        title=title,
-                        url=streaming_url
-                    )
-                )
-                video_id_counter += 1
-
-        except Exception as e:
-            print(f"Could not process video {track.get('videoId')}: {e}")
+    for idx, track in enumerate(search_results, start=1):
+        video_id = track.get("videoId")
+        title = track.get("title")
+        if not video_id or not title:
             continue
+
+        try:
+            song = ytmusic.get_song(video_id)
+            formats = song.get("streamingData", {}).get("adaptiveFormats", [])
+            audio_format = next(
+                (
+                    f for f in formats
+                    if f.get("mimeType", "").startswith("audio/")
+                ),
+                None,
+            )
+            streaming_url = audio_format.get("url") if audio_format else None
+        except Exception as e:
+            print(f"Could not process video {video_id}: {e}")
+            continue
+
+        if streaming_url:
+            musics.append(
+                schemas.AudioTrack(id=idx, title=title, url=streaming_url)
+            )
 
     if not musics:
         raise HTTPException(status_code=404, detail="No music found for the given mood")
