@@ -22,7 +22,7 @@ data class HomeState(
     val articles: List<Article> = emptyList(),
     val audio: List<AudioTrack> = emptyList(),
     val quotes: List<MotivationalQuote> = emptyList(),
-    val isRefreshing: Boolean = false, // Ganti nama dari isLoading
+    val isRefreshing: Boolean = false, // Indicates whether a refresh is in progress
     val username: String = "User"
 )
 
