@@ -10,8 +10,14 @@ ARTICLES = [
 ]
 
 AUDIO_TRACKS = [
-    {"title": "Relaxing Piano", "url": "https://example.com/audio/piano.mp3"},
-    {"title": "Nature Sounds", "url": "https://example.com/audio/nature.mp3"},
+    {
+        "title": "Relaxing Piano",
+        "url": "https://music.youtube.com/watch?v=9E6b3swbnWg",
+    },
+    {
+        "title": "Nature Sounds",
+        "url": "https://music.youtube.com/watch?v=eKFTSSKCzWA",
+    },
 ]
 
 QUOTES = [
