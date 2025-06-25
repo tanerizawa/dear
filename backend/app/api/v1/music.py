@@ -3,11 +3,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from ytmusicapi import YTMusic
+import structlog
 
 from app import crud, models, schemas, dependencies
 from app.services.music_keyword_service import MusicKeywordService
 
 router = APIRouter()
+log = structlog.get_logger(__name__)
 ytmusic = YTMusic()
 
 @router.get("/", response_model=list[schemas.AudioTrack])
@@ -40,7 +42,11 @@ def search_music(
             )
             streaming_url = audio_format.get("url") if audio_format else None
         except Exception as e:
-            print(f"Could not process video {video_id}: {e}")
+            log.error(
+                "ytmusic_error",
+                video_id=video_id,
+                error=str(e),
+            )
             continue
 
         if streaming_url:
@@ -86,7 +92,11 @@ async def recommend_music(
             )
             streaming_url = audio_format.get("url") if audio_format else None
         except Exception as e:
-            print(f"Could not process video {video_id}: {e}")
+            log.error(
+                "ytmusic_error",
+                video_id=video_id,
+                error=str(e),
+            )
             continue
 
         if streaming_url:
