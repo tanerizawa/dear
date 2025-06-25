@@ -128,6 +128,33 @@ fun AudioCard(track: AudioTrack, modifier: Modifier = Modifier, onClick: () -> U
 }
 
 @Composable
+fun MoodMusicCard(track: AudioTrack, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.GraphicEq,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(track.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(track.url, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+@Composable
 fun MotivationCard(quote: MotivationalQuote, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),

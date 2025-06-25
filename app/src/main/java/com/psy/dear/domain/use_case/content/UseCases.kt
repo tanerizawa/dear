@@ -15,6 +15,10 @@ class GetAudioTracksUseCase @Inject constructor(private val repo: ContentReposit
     operator fun invoke(): Flow<List<AudioTrack>> = repo.getAudioTracks()
 }
 
+class GetMoodMusicUseCase @Inject constructor(private val repo: ContentRepository) {
+    operator fun invoke(mood: String): Flow<List<AudioTrack>> = repo.getMoodMusic(mood)
+}
+
 class GetQuotesUseCase @Inject constructor(private val repo: ContentRepository) {
     operator fun invoke(): Flow<List<MotivationalQuote>> = repo.getQuotes()
 }

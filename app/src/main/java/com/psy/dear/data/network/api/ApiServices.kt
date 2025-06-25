@@ -43,6 +43,9 @@ interface ContentApiService {
     @GET("audio")
     suspend fun getAudio(): List<AudioTrackResponse>
 
+    @GET("music")
+    suspend fun getMoodMusic(@Query("mood") mood: String): List<AudioTrackResponse>
+
     @GET("quotes")
     suspend fun getQuotes(): List<MotivationalQuoteResponse>
 }
