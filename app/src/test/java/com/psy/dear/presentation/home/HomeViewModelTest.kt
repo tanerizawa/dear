@@ -12,7 +12,7 @@ import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
 import com.psy.dear.domain.use_case.content.GetArticlesUseCase
 import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
-import com.psy.dear.domain.use_case.content.GetMoodMusicUseCase
+import com.psy.dear.domain.use_case.content.GetRecommendedMusicUseCase
 import com.psy.dear.domain.use_case.content.GetQuotesUseCase
 import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import com.psy.dear.util.TestCoroutineRule
@@ -42,7 +42,7 @@ class HomeViewModelTest {
     private lateinit var syncJournalsUseCase: SyncJournalsUseCase
     private lateinit var getArticles: GetArticlesUseCase
     private lateinit var getAudio: GetAudioTracksUseCase
-    private lateinit var getMoodMusic: GetMoodMusicUseCase
+    private lateinit var getRecommendedMusic: GetRecommendedMusicUseCase
     private lateinit var getQuotes: GetQuotesUseCase
     private lateinit var getUserProfile: GetUserProfileUseCase
 
@@ -55,7 +55,7 @@ class HomeViewModelTest {
         syncJournalsUseCase = SyncJournalsUseCase(fakeRepository)
         getArticles = GetArticlesUseCase(fakeContentRepo)
         getAudio = GetAudioTracksUseCase(fakeContentRepo)
-        getMoodMusic = GetMoodMusicUseCase(fakeContentRepo)
+        getRecommendedMusic = GetRecommendedMusicUseCase(fakeContentRepo)
         getQuotes = GetQuotesUseCase(fakeContentRepo)
         getUserProfile = GetUserProfileUseCase(fakeUserRepo)
 
@@ -67,7 +67,7 @@ class HomeViewModelTest {
             syncJournalsUseCase,
             getArticles,
             getAudio,
-            getMoodMusic,
+            getRecommendedMusic,
             getQuotes,
             getUserProfile
         )

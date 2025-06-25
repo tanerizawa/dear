@@ -128,7 +128,7 @@ fun AudioCard(track: AudioTrack, modifier: Modifier = Modifier, onClick: () -> U
 }
 
 @Composable
-fun MoodMusicCard(track: AudioTrack, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+fun RecommendedMusicCard(track: AudioTrack, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Card(
         onClick = onClick,
         modifier = modifier
