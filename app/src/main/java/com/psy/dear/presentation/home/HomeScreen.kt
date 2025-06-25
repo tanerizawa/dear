@@ -82,15 +82,15 @@ private fun HomeDashboard(state: HomeState, navController: NavController) {
         item { GreetingCard(userName = state.username) }
         item { JournalPromptCard { navController.navigate(Screen.JournalEditor.createRoute(null)) } }
 
-        if (state.moodTracks.isNotEmpty()) {
+        if (state.recommendedTracks.isNotEmpty()) {
             item {
-                MoodMusicCard(
-                    track = state.moodTracks.first(),
+                RecommendedMusicCard(
+                    track = state.recommendedTracks.first(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     onClick = {
-                        val track = state.moodTracks.first()
+                        val track = state.recommendedTracks.first()
                         navController.navigate(
                             Screen.AudioPlayer.createRoute(url = track.url, title = track.title)
                         )
