@@ -1,5 +1,7 @@
 package com.psy.dear.presentation.content
 
+import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -10,15 +12,15 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.*
-import android.media.MediaPlayer
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.psy.dear.presentation.home.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,14 +28,16 @@ import com.psy.dear.presentation.home.HomeViewModel
 fun AudioPlayerScreen(
     navController: NavController,
     trackTitle: String,
-    trackUrl: String, // kita akan gunakan ini nanti
+    trackUrl: String,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val state by homeViewModel.state.collectAsState()
     val tracks = state.audio + state.moodTracks
     var currentIndex by remember(tracks, trackUrl) {
         mutableStateOf(tracks.indexOfFirst { it.url == trackUrl }.takeIf { it >= 0 } ?: 0)
     }
+
     var isPlaying by remember { mutableStateOf(false) }
     val mediaPlayer = remember { MediaPlayer() }
 
@@ -42,24 +46,42 @@ fun AudioPlayerScreen(
         if (track != null) {
             try {
                 mediaPlayer.reset()
-                mediaPlayer.setDataSource(track.url)
-                mediaPlayer.prepare()
-                if (isPlaying) mediaPlayer.start()
+
+                // Set listeners sebelum prepareAsync()
+                mediaPlayer.setOnPreparedListener { mp ->
+                    mp.start()
+                    isPlaying = true
+                }
+
+                mediaPlayer.setOnErrorListener { mp, what, extra ->
+                    Log.e("MediaPlayer", "Error what: $what, extra: $extra")
+                    mp.reset()
+                    isPlaying = false
+                    true // menandakan error sudah ditangani
+                }
+
                 mediaPlayer.setOnCompletionListener {
                     if (tracks.isNotEmpty()) {
                         currentIndex = (currentIndex + 1) % tracks.size
-                        isPlaying = true
+                        isPlaying = false
                     }
                 }
-            } catch (_: Exception) {
+
+                mediaPlayer.setDataSource(track.url)
+                mediaPlayer.prepareAsync()
+
+            } catch (e: Exception) {
+                Log.e("MediaPlayer", "Error setting data source", e)
             }
         }
+
         onDispose { }
     }
 
     DisposableEffect(Unit) {
         onDispose { mediaPlayer.release() }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -80,7 +102,6 @@ fun AudioPlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Placeholder untuk Album Art
             Box(
                 modifier = Modifier
                     .size(250.dp)
@@ -88,27 +109,25 @@ fun AudioPlayerScreen(
                     .background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
-                // Anda bisa menaruh ikon musik di sini
+                // Placeholder ikon musik
             }
 
             Spacer(Modifier.height(32.dp))
 
-            // Judul Lagu
             Text(
                 text = tracks.getOrNull(currentIndex)?.title ?: trackTitle,
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Artis Tidak Dikenal", // Placeholder
+                text = "Artis Tidak Dikenal",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(Modifier.height(24.dp))
 
-            // Placeholder untuk Seek Bar
-            Slider(value = 0.5f, onValueChange = {})
+            Slider(value = 0.5f, onValueChange = {}) // Placeholder SeekBar
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -123,6 +142,7 @@ fun AudioPlayerScreen(
                 }) {
                     Icon(Icons.Default.SkipPrevious, contentDescription = "Sebelumnya", modifier = Modifier.size(48.dp))
                 }
+
                 IconButton(onClick = {
                     if (mediaPlayer.isPlaying) {
                         mediaPlayer.pause()
@@ -138,6 +158,7 @@ fun AudioPlayerScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+
                 IconButton(onClick = {
                     if (tracks.isNotEmpty()) {
                         currentIndex = (currentIndex + 1) % tracks.size
