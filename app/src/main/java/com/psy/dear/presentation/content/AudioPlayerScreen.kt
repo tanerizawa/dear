@@ -33,7 +33,7 @@ fun AudioPlayerScreen(
 ) {
     val context = LocalContext.current
     val state by homeViewModel.state.collectAsState()
-    val tracks = state.audio + state.moodTracks
+    val tracks = state.audio + state.recommendedTracks
     var currentIndex by remember(tracks, trackUrl) {
         mutableStateOf(tracks.indexOfFirst { it.url == trackUrl }.takeIf { it >= 0 } ?: 0)
     }
