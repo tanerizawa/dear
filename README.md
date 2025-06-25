@@ -37,7 +37,19 @@ source venv/bin/activate
 pip install -r backend/requirements.txt
 ```
 
-3. Start the development server **from inside** the `backend/` directory to avoid
+3. Generate the YouTube Music OAuth credentials. Run this inside the
+   `backend/` directory so the resulting `oauth.json` is saved there:
+
+```bash
+cd backend
+python - <<'EOF'
+from ytmusicapi import YTMusic
+YTMusic.setup_oauth()
+EOF
+cd ..
+```
+
+4. Start the development server **from inside** the `backend/` directory to avoid
    `ModuleNotFoundError`:
 
 ```bash
@@ -53,9 +65,17 @@ OpenRouter to produce a song keyword and then searches YouTube Music:
 curl "http://localhost:8000/api/v1/music?mood=happy" -H "Authorization: Bearer <token>"
 
 # get a song based on your last five journals
-curl http://localhost:8000/api/v1/music/recommend \
+    curl http://localhost:8000/api/v1/music/recommend \
      -H "Authorization: Bearer <token>"
 ```
+
+### YouTube Music OAuth
+
+The music routes use [ytmusicapi](https://github.com/sigma67/ytmusicapi).
+After completing the setup step above you should have an `oauth.json`
+file. Make sure this file stays in the directory from which you run the
+backend (`backend/` when using the commands above), otherwise the
+`YTMusic` client will fail to authenticate.
 
 ### Database Migrations
 
@@ -79,7 +99,8 @@ make seed
 
 ### Environment Variables
 
-The backend reads several variables from the environment:
+The backend reads several variables from the environment and expects a
+YouTube Music `oauth.json` file in the working directory:
 
 - `DATABASE_URL` – SQLAlchemy database URL (defaults to SQLite `sqlite:///./test.db`).
 - `SECRET_KEY` – secret key used for JWT creation (defaults to `supersecretkey`).
@@ -88,6 +109,8 @@ The backend reads several variables from the environment:
 - `GENERATOR_MODEL_NAME` – model name used by the response generator.
 - `APP_SITE_URL` – site URL sent in OpenRouter requests for identification.
 - `APP_NAME` – application name reported to OpenRouter when making requests.
+
+Keep `oauth.json` next to your `.env` file inside the `backend/` directory.
 
 To use the AI features you need an OpenRouter account. Sign up at
 [OpenRouter](https://openrouter.ai) and generate an API key from the dashboard.
