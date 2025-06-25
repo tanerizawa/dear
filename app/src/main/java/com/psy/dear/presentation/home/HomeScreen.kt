@@ -82,6 +82,23 @@ private fun HomeDashboard(state: HomeState, navController: NavController) {
         item { GreetingCard(userName = state.username) }
         item { JournalPromptCard { navController.navigate(Screen.JournalEditor.createRoute(null)) } }
 
+        if (state.moodTracks.isNotEmpty()) {
+            item {
+                MoodMusicCard(
+                    track = state.moodTracks.first(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    onClick = {
+                        val track = state.moodTracks.first()
+                        navController.navigate(
+                            Screen.AudioPlayer.createRoute(url = track.url, title = track.title)
+                        )
+                    }
+                )
+            }
+        }
+
         if (state.quotes.isNotEmpty()) {
             item {
                 SectionHeader(title = "Kutipan Hari Ini", modifier = Modifier.padding(top = 16.dp))

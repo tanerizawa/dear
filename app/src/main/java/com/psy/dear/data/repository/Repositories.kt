@@ -171,6 +171,10 @@ class ContentRepositoryImpl @Inject constructor(
         emit(api.getAudio().map { it.toDomain() })
     }
 
+    override fun getMoodMusic(mood: String): Flow<List<AudioTrack>> = flow {
+        emit(api.getMoodMusic(mood).map { it.toDomain() })
+    }
+
     override fun getQuotes(): Flow<List<MotivationalQuote>> = flow {
         emit(api.getQuotes().map { it.toDomain() })
     }

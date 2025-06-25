@@ -9,11 +9,13 @@ import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
 import com.psy.dear.domain.use_case.content.GetArticlesUseCase
 import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
+import com.psy.dear.domain.use_case.content.GetMoodMusicUseCase
 import com.psy.dear.domain.use_case.content.GetQuotesUseCase
 import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import javax.inject.Inject
 import com.psy.dear.R // Pastikan import R sudah ada
 
@@ -21,6 +23,7 @@ data class HomeState(
     val journals: List<Journal> = emptyList(),
     val articles: List<Article> = emptyList(),
     val audio: List<AudioTrack> = emptyList(),
+    val moodTracks: List<AudioTrack> = emptyList(),
     val quotes: List<MotivationalQuote> = emptyList(),
     val isRefreshing: Boolean = false, // Indicates whether a refresh is in progress
     val username: String = "User"
@@ -37,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val syncJournalsUseCase: SyncJournalsUseCase,
     getArticlesUseCase: GetArticlesUseCase,
     getAudioTracksUseCase: GetAudioTracksUseCase,
+    private val getMoodMusicUseCase: GetMoodMusicUseCase,
     getQuotesUseCase: GetQuotesUseCase,
     private val getUserProfileUseCase: GetUserProfileUseCase
 ) : ViewModel() {
@@ -48,11 +52,24 @@ class HomeViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
+    private var moodJob: Job? = null
+
     init {
         // Alur ini hanya mengambil dari database lokal, tidak akan pernah gagal
         getJournalsUseCase()
             .onEach { journals ->
                 _state.update { it.copy(journals = journals) }
+                val mood = journals.firstOrNull()?.mood
+                moodJob?.cancel()
+                if (mood != null) {
+                    moodJob = getMoodMusicUseCase(mood)
+                        .onEach { tracks ->
+                            _state.update { it.copy(moodTracks = tracks) }
+                        }
+                        .launchIn(viewModelScope)
+                } else {
+                    _state.update { it.copy(moodTracks = emptyList()) }
+                }
             }
             .launchIn(viewModelScope)
 
@@ -107,6 +124,18 @@ class HomeViewModel @Inject constructor(
                         message = UiText.StringResource(R.string.error_network)
                     )
                 )
+            }
+
+            val mood = state.value.journals.firstOrNull()?.mood
+            moodJob?.cancel()
+            if (mood != null) {
+                moodJob = getMoodMusicUseCase(mood)
+                    .onEach { tracks ->
+                        _state.update { it.copy(moodTracks = tracks) }
+                    }
+                    .launchIn(viewModelScope)
+            } else {
+                _state.update { it.copy(moodTracks = emptyList()) }
             }
         }
     }
