@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from ytmusicapi import YTMusic
-from ..deps import get_current_active_user
+from app.dependencies import get_current_user
 from app.models.user import User
 import yt_dlp
 from app import schemas
@@ -13,7 +13,7 @@ ytmusic = YTMusic()
 @router.get("/", response_model=list[schemas.AudioTrack])
 def search_music(
     mood: str = Query(..., min_length=1),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_user)
 ):
     if not mood:
         raise HTTPException(status_code=400, detail="Mood parameter is required")
