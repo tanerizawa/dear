@@ -44,6 +44,12 @@ pip install -r backend/requirements.txt
 cd backend && uvicorn app.main:app --reload
 ```
 
+Once running you can try the music search endpoint:
+
+```bash
+curl "http://localhost:8000/api/v1/music?mood=happy"
+```
+
 ### Database Migrations
 
 Alembic handles schema migrations. Common commands:
