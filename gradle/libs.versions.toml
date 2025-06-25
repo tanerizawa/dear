@@ -26,6 +26,10 @@ accompanistNavigationAnimation = "0.32.0"
 # Logging
 timber = "5.0.1"
 
+# Additional
+coroutines = "1.7.3"
+mockk = "1.13.10"
+
 # Testing
 junit = "4.13.2"
 androidxTestExtJunit = "1.1.5"
@@ -78,6 +82,8 @@ androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
