@@ -18,6 +18,7 @@ import com.psy.dear.presentation.navigation.Screen
 import com.psy.dear.ui.theme.DearTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 

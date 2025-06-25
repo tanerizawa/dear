@@ -12,6 +12,9 @@ import com.psy.dear.domain.model.User
 import com.psy.dear.presentation.navigation.Screen
 import com.psy.dear.core.asString
 import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,3 +78,17 @@ fun ProfileContent(user: User, onLogout: () -> Unit) {
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileContentPreview() {
+    val dummyUser = User(
+        id = "123",
+        username = "Odang Rodiana",
+        email = "odang@example.com"
+    )
+    MaterialTheme {
+        ProfileContent(user = dummyUser, onLogout = {})
+    }
+}
+

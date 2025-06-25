@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.dependencies import get_db, get_current_user
 from app.db.base_class import Base
+from app import models
 from app.models.user import User
 
 @pytest.fixture

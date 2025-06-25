@@ -1,0 +1,52 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Nginx sebagai pintu masuk
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+
+  # API FastAPI kita
+  api:
+    build: ./backend
+    command: gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app -b 0.0.0.0:8000
+    expose:
+      - 8000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
+
+  # Database PostgreSQL
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    ports:
+      # Buka port 5432 ke host agar bisa diakses dari luar kontainer untuk debugging
+      - "5432:5432"
+
+  # Redis untuk Cache & Broker
+  redis:
+    image: redis:7-alpine
+
+  # Celery Worker untuk tugas latar belakang
+  worker:
+    build: ./backend
+    command: celery -A app.celery_app.celery_app worker -l info
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  postgres_data:

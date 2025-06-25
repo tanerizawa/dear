@@ -13,6 +13,6 @@ async def test_get_plan_accepts_four_args(monkeypatch):
 
     monkeypatch.setattr(PlannerService, "_call_openrouter", fake_call)
 
-    plan = await planner.get_plan("hello", ["hi"], "", "neutral")
+    plan = await planner.get_plan("hello", ["hi"], "", None, "neutral")
     assert plan.technique == CommunicationTechnique.INFORMATION
 

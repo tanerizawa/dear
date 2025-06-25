@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+import structlog
 
 from app import models, schemas, crud, dependencies
 from app.models.chat import SenderType
@@ -9,11 +10,18 @@ from app.services.generator_service import GeneratorService
 from app.services.emotion_service import EmotionService
 
 router = APIRouter()
+log = structlog.get_logger(__name__)
 
+
+# Di app/api/v1/chat.py
 def get_latest_journal(db: Session, user: models.User) -> str:
-    """Return the latest journal content or empty string."""
-    journals = crud.journal.get_multi_by_owner(db, owner_id=user.id, limit=1)
+    journals = crud.journal.get_multi_by_owner(
+        db=db,
+        owner_id=user.id,
+        limit=1,
+    )
     return journals[0].content if journals else ""
+
 
 @router.post("/", response_model=schemas.chat.ChatMessage)
 async def handle_chat_message(
@@ -25,84 +33,111 @@ async def handle_chat_message(
         generator: GeneratorService = Depends(),
         emotion_service: EmotionService = Depends(),
 ):
-    """
-    Orkestrasi alur chat Planner/Generator.
-    """
-    # 1. Analisis emosi dan simpan pesan dari pengguna
+    log.info("handle_chat_message:start", user_id=current_user.id)
+
+    # Ambil memori pengguna (profil psikologis jangka panjang)
+    user_profile = crud.user_profile.get_by_user_id(db, user_id=current_user.id)
+
+    # Ambil jurnal terbaru (konteks jangka pendek emosional)
+    latest_journal = get_latest_journal(db, user=current_user)
+
+    # Deteksi emosi dari pesan terbaru
     emotion_label = emotion_service.detect_emotion(chat_in.message)
+
+    # Simpan pesan USER ke database
     user_message_obj = schemas.chat.ChatMessageCreate(
         content=chat_in.message,
         sender_type=SenderType.USER,
         emotion=emotion_label,
     )
     crud.chat_message.create_with_owner(
-        db, obj_in=user_message_obj, owner_id=current_user.id
+        db=db,
+        obj_in=user_message_obj,
+        owner_id=current_user.id
     )
 
-    # 2. Ambil riwayat chat & bangun konteks
+    # Ambil 10 riwayat pesan terakhir (dalam urutan kronologis)
     history_db = crud.chat_message.get_multi_by_owner(
-        db, owner_id=current_user.id, limit=10
+        db=db,
+        owner_id=current_user.id,
+        limit=10
     )
+    history_db_reversed = history_db[::-1]  # kronologis dari paling awal ke akhir
 
+    chat_history = [msg.content for msg in history_db_reversed]
     history_formatted = [
         {"role": msg.sender_type.value, "content": msg.content}
-        for msg in reversed(history_db)
+        for msg in history_db_reversed
     ]
 
-    chat_history = [msg.content for msg in reversed(history_db)]
-
-    latest_journal = get_latest_journal(db, user=current_user)
-
-    # 3. Panggil Planner untuk mendapatkan rencana
+    # Perencanaan strategi komunikasi
     conversation_plan = await planner.get_plan(
         user_message=chat_in.message,
         chat_history=chat_history,
         latest_journal=latest_journal,
+        user_profile=user_profile,  # bisa None
         emotion_label=emotion_label,
     )
 
-    # 4. Panggil Generator untuk mendapatkan respons final
+    # Hasilkan respons AI
     final_response = await generator.generate_response(
         plan=conversation_plan,
-        history=history_formatted,       # ✅ ini sesuai parameter
-        emotion=emotion_label,           # ✅ ini sesuai parameter
+        history=history_formatted,
+        emotion=emotion_label,
     )
 
-    # 5. Simpan respons AI ke database
+    # Simpan pesan AI ke database
     ai_message_obj = schemas.chat.ChatMessageCreate(
         content=final_response,
         sender_type=SenderType.AI,
         ai_technique=conversation_plan.technique.value,
     )
     ai_message_db = crud.chat_message.create_with_owner(
-        db, obj_in=ai_message_obj, owner_id=current_user.id
+        db=db,
+        obj_in=ai_message_obj,
+        owner_id=current_user.id
+    )
+
+    log.info(
+        "handle_chat_message:success",
+        user_id=current_user.id,
+        ai_technique=conversation_plan.technique.value,
     )
 
     return ai_message_db
 
-@router.patch("/{id}/flag", response_model=schemas.chat.ChatMessage)
-def update_chat_flag(
-        *,
-        db: Session = Depends(dependencies.get_db),
-        id: int,
-        flag_in: schemas.chat.ChatFlagUpdate,
-        current_user: models.User = Depends(dependencies.get_current_user),
-):
-    message = crud.chat_message.set_flag(
-        db, id=id, owner_id=current_user.id, flag=flag_in.flag
-    )
-    if not message:
-        raise HTTPException(status_code=404, detail="Chat message not found")
-    return message
 
-@router.delete("/{id}", response_model=schemas.chat.ChatMessage)
-def delete_chat_message(
-        *,
-        db: Session = Depends(dependencies.get_db),
-        id: int,
-        current_user: models.User = Depends(dependencies.get_current_user),
+@router.patch("/{chat_id}/flag", response_model=schemas.chat.ChatMessage)
+def flag_chat_message(
+    *,
+    chat_id: int,
+    flag: schemas.chat.ChatFlagUpdate,
+    db: Session = Depends(dependencies.get_db),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
-    message = crud.chat_message.remove(db, id=id, owner_id=current_user.id)
-    if not message:
-        raise HTTPException(status_code=404, detail="Chat message not found")
-    return message
+    msg = crud.chat_message.set_flag(
+        db=db,
+        id=chat_id,
+        owner_id=current_user.id,
+        flag=flag.flag,
+    )
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return msg
+
+
+@router.delete("/{chat_id}", response_model=schemas.chat.ChatMessage)
+def delete_chat_message(
+    *,
+    chat_id: int,
+    db: Session = Depends(dependencies.get_db),
+    current_user: models.User = Depends(dependencies.get_current_user),
+):
+    msg = crud.chat_message.remove(
+        db=db,
+        id=chat_id,
+        owner_id=current_user.id,
+    )
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return msg

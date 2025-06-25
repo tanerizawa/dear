@@ -3,7 +3,6 @@ package com.psy.dear.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.psy.dear.core.Result
-import com.psy.dear.core.ErrorMapper
 import com.psy.dear.core.UiText
 import com.psy.dear.domain.model.*
 import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
@@ -16,16 +15,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.psy.dear.R // Pastikan import R sudah ada
 
 data class HomeState(
     val journals: List<Journal> = emptyList(),
     val articles: List<Article> = emptyList(),
     val audio: List<AudioTrack> = emptyList(),
     val quotes: List<MotivationalQuote> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: UiText? = null,
+    val isRefreshing: Boolean = false, // Ganti nama dari isLoading
     val username: String = "User"
 )
+
+// Definisikan event untuk komunikasi sekali jalan ke UI
+sealed class UiEvent {
+    data class ShowSnackbar(val message: UiText) : UiEvent()
+}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -40,10 +44,15 @@ class HomeViewModel @Inject constructor(
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
+    // Channel untuk mengirim event seperti Snackbar
+    private val _eventFlow = MutableSharedFlow<UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
     init {
+        // Alur ini hanya mengambil dari database lokal, tidak akan pernah gagal
         getJournalsUseCase()
             .onEach { journals ->
-                _state.update { it.copy(journals = journals, error = null) }
+                _state.update { it.copy(journals = journals) }
             }
             .launchIn(viewModelScope)
 
@@ -65,24 +74,38 @@ class HomeViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
 
+        // Ambil profil pengguna sekali saja
         viewModelScope.launch {
             when (val result = getUserProfileUseCase()) {
-                is Result.Success -> _state.update { it.copy(username = result.data.username) }
-                else -> {}
+                is Result.Success -> _state.update {
+                    it.copy(username = result.data?.username ?: "User")
+                }
+                else -> { /* Biarkan, jangan tampilkan error block */ }
             }
         }
 
+        // Lakukan sinkronisasi pertama kali saat ViewModel dibuat
         refresh()
     }
 
     fun refresh() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            // Tampilkan indikator refresh (untuk pull-to-refresh)
+            _state.update { it.copy(isRefreshing = true) }
+
+            // Panggil use case sinkronisasi
             val result = syncJournalsUseCase()
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    error = if (result is Result.Error) UiText.StringResource(ErrorMapper.map(result.exception)) else null
+
+            // Sembunyikan indikator refresh
+            _state.update { it.copy(isRefreshing = false) }
+
+            // Jika GAGAL, kirim event untuk tampilkan Snackbar, BUKAN error besar
+            if (result is Result.Error) {
+                _eventFlow.emit(
+                    UiEvent.ShowSnackbar(
+                        // Kita bisa beri pesan lebih spesifik
+                        message = UiText.StringResource(R.string.error_network)
+                    )
                 )
             }
         }

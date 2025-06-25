@@ -5,12 +5,14 @@
 
 package com.psy.dear.presentation.chat
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -23,18 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.psy.dear.domain.model.ChatMessage
-import com.psy.dear.ui.theme.ChatAppBar
-import com.psy.dear.ui.theme.ChatBackground
-import com.psy.dear.ui.theme.OtherBubble
-import com.psy.dear.ui.theme.UserBubble
-import com.psy.dear.ui.theme.IconInactive
 import com.psy.dear.core.asString
-import java.time.format.DateTimeFormatter
+import com.psy.dear.domain.model.ChatMessage
 import kotlinx.coroutines.flow.collectLatest
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatScreen(
@@ -81,7 +77,7 @@ fun ChatScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(ChatBackground)
+                .background(MaterialTheme.colorScheme.background) // Menggunakan warna latar dari tema
                 .padding(paddingValues)
         ) {
             if (uiState.error != null) {
@@ -99,7 +95,8 @@ fun ChatScreen(
                 state = listState,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(uiState.messages) { message ->
                     ChatMessageItem(
@@ -129,10 +126,10 @@ fun ChatTopBar(
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = ChatAppBar,
-            navigationIconContentColor = Color.White,
-            titleContentColor = Color.White,
-            actionIconContentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface, // Sesuai tema
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface
         ),
         title = {
             Text(if (selectionMode) "$selectedCount selected" else "Chat")
@@ -164,6 +161,7 @@ fun ChatInputBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -175,8 +173,9 @@ fun ChatInputBar(
             enabled = !isSending,
             maxLines = 5,
             shape = RoundedCornerShape(24.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.White,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedContainerColor = MaterialTheme.colorScheme.background,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
             )
@@ -187,17 +186,20 @@ fun ChatInputBar(
             if (isSending) {
                 CircularProgressIndicator(strokeWidth = 2.dp)
             } else {
+                val containerColor = if (text.isNotBlank()) MaterialTheme.colorScheme.primary else Color.Transparent
+                val iconColor = if (text.isNotBlank()) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+
                 IconButton(
                     onClick = onSendClick,
                     enabled = text.isNotBlank(),
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = if (text.isNotBlank()) ChatAppBar else Color.Transparent
+                        containerColor = containerColor
                     )
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Send,
                         contentDescription = "Send Message",
-                        tint = if (text.isNotBlank()) Color.White else IconInactive
+                        tint = iconColor
                     )
                 }
             }
@@ -227,11 +229,16 @@ fun ChatMessageItem(
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
         verticalAlignment = Alignment.Bottom
     ) {
-        if (!isUser) ChatBubbleTail(color = OtherBubble, isUser = false)
+        val bubbleColor = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+        val textColor = if (isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+
+        if (!isUser) ChatBubbleTail(color = bubbleColor, isUser = false)
+
         Surface(
-            color = if (isUser) UserBubble else OtherBubble,
+            color = bubbleColor,
             shape = RoundedCornerShape(16.dp),
-            shadowElevation = 2.dp
+            shadowElevation = 1.dp,
+            border = if (!isUser) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -239,16 +246,16 @@ fun ChatMessageItem(
             ) {
                 Text(
                     text = message.content,
-                    color = Color.Black
+                    color = textColor
                 )
                 Text(
                     text = message.timestamp.format(DateTimeFormatter.ofPattern("HH:mm")),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF666666),
+                    color = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
         }
-        if (isUser) ChatBubbleTail(color = UserBubble, isUser = true)
+        if (isUser) ChatBubbleTail(color = bubbleColor, isUser = true)
     }
 }

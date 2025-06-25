@@ -1,14 +1,29 @@
+# backend/tests/test_chat_api.py
+
 import pytest
+from datetime import datetime
+from fastapi.encoders import jsonable_encoder
 from app.schemas.plan import CommunicationTechnique, ConversationPlan
 from app.services.planner_service import PlannerService
 from app.services.generator_service import GeneratorService
+from app.schemas.user_profile import UserProfile
 
+# Dummy user profile lengkap untuk pengujian
+dummy_profile = UserProfile(
+    emerging_themes={"stres": 0.9},
+    sentiment_trend="negatif",
+    id=1,
+    user_id=1,
+    last_analyzed=datetime.utcnow()
+)
 
 def test_chat_flow_success(client):
     client_app, session_local = client
 
     class DummyPlanner:
-        async def get_plan(self, *args, **kwargs):
+        async def get_plan(self, user_message, chat_history, latest_journal, user_profile, emotion_label):
+            # Pastikan user_profile adalah objek yang benar atau None
+            assert user_profile is None or isinstance(user_profile, UserProfile)
             return ConversationPlan(technique=CommunicationTechnique.INFORMATION)
 
     class DummyGenerator:
@@ -16,11 +31,15 @@ def test_chat_flow_success(client):
             return "hello from ai"
 
     from app.main import app
-
     app.dependency_overrides[PlannerService] = lambda: DummyPlanner()
     app.dependency_overrides[GeneratorService] = lambda: DummyGenerator()
 
-    response = client_app.post("/api/v1/chat/", json={"message": "Hi"})
+    # Kirim payload HANYA dengan 'message'
+    response = client_app.post(
+        "/api/v1/chat/",
+        json={"message": "Hi"}
+    )
+
     assert response.status_code == 200
     data = response.json()
     assert data["content"] == "hello from ai"
@@ -28,7 +47,6 @@ def test_chat_flow_success(client):
     assert data["ai_technique"] == "information"
 
     from app.models.chat import ChatMessage
-
     db = session_local()
     try:
         msgs = db.query(ChatMessage).all()
@@ -41,28 +59,28 @@ def test_chat_flow_success(client):
 
 
 def test_get_latest_journal_returns_newest_entry(client):
-    """Ensure get_latest_journal fetches the most recent journal content."""
     client_app, session_local = client
-
     db = session_local()
     from app import crud, models, schemas
+    from app.api.v1.chat import get_latest_journal
 
     try:
         user = db.query(models.User).first()
+        # Gunakan create_with_owner untuk membuat jurnal
         crud.journal.create_with_owner(
-            db,
+            db=db,
             obj_in=schemas.JournalCreate(title="old", content="first", mood="ok"),
-            owner_id=user.id,
+            owner_id=user.id
         )
         crud.journal.create_with_owner(
-            db,
+            db=db,
             obj_in=schemas.JournalCreate(title="new", content="second", mood="ok"),
-            owner_id=user.id,
+            owner_id=user.id
         )
-        from app.api.v1.chat import get_latest_journal
 
-        latest = get_latest_journal(db, user)
-        assert latest == "second"
+        # Panggil fungsi untuk mendapatkan konten jurnal terbaru
+        latest_content = get_latest_journal(db, user)
+        assert latest_content == "second"
     finally:
         db.close()
 
@@ -79,12 +97,17 @@ def test_flag_and_delete_message(client):
             return "hi ai"
 
     from app.main import app
-
     app.dependency_overrides[PlannerService] = lambda: DummyPlanner()
     app.dependency_overrides[GeneratorService] = lambda: DummyGenerator()
 
-    post_resp = client_app.post("/api/v1/chat/", json={"message": "Hello"})
-    msg_id = post_resp.json()["id"]
+    # Kirim payload HANYA dengan 'message'
+    response = client_app.post(
+        "/api/v1/chat/",
+        json={"message": "Hello"}
+    )
+    assert response.status_code == 200
+    msg_id = response.json().get("id")
+    assert msg_id is not None
 
     flag_resp = client_app.patch(f"/api/v1/chat/{msg_id}/flag", json={"flag": True})
     assert flag_resp.status_code == 200
@@ -94,7 +117,6 @@ def test_flag_and_delete_message(client):
     assert delete_resp.status_code == 200
 
     from app.models.chat import ChatMessage
-
     db = session_local()
     try:
         assert db.query(ChatMessage).filter(ChatMessage.id == msg_id).first() is None
@@ -107,6 +129,5 @@ def test_flag_and_delete_message(client):
 
 def test_flag_missing_message_returns_404(client):
     client_app, _ = client
-
     response = client_app.patch("/api/v1/chat/9999/flag", json={"flag": True})
     assert response.status_code == 404
