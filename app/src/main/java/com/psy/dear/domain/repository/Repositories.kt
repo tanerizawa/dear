@@ -36,5 +36,6 @@ interface ContentRepository {
     fun getArticles(): Flow<List<Article>>
     fun getAudioTracks(): Flow<List<AudioTrack>>
     fun getMoodMusic(mood: String): Flow<List<AudioTrack>>
+    fun getRecommendedMusic(): Flow<List<AudioTrack>>
     fun getQuotes(): Flow<List<MotivationalQuote>>
 }

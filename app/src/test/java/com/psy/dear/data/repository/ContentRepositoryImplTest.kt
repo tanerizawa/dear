@@ -42,4 +42,22 @@ class ContentRepositoryImplTest {
 
         assertEquals(expected, result)
     }
+
+    @Test
+    fun `getRecommendedMusic emits tracks from api as domain models`() = runTest {
+        val responses = listOf(
+            AudioTrackResponse("1", "Track1", "url1"),
+            AudioTrackResponse("2", "Track2", "url2")
+        )
+        coEvery { api.getRecommendedMusic() } returns responses
+
+        val result = repository.getRecommendedMusic().first()
+
+        val expected = listOf(
+            AudioTrack("1", "Track1", "url1"),
+            AudioTrack("2", "Track2", "url2")
+        )
+
+        assertEquals(expected, result)
+    }
 }
