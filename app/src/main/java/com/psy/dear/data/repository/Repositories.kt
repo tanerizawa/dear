@@ -183,6 +183,18 @@ class ContentRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getRecommendedMusic(): Flow<List<AudioTrack>> = flow {
+        try {
+            emit(api.getRecommendedMusic().map { it.toDomain() })
+        } catch (e: HttpException) {
+            if (e.code() == 404) {
+                emit(emptyList())
+            } else {
+                throw e
+            }
+        }
+    }
+
     override fun getQuotes(): Flow<List<MotivationalQuote>> = flow {
         emit(api.getQuotes().map { it.toDomain() })
     }
