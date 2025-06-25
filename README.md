@@ -6,6 +6,7 @@
 
 - **Android app**: Built with Kotlin, Jetpack Compose, and Hilt. The source lives under `app/`.
 - **FastAPI backend**: Provides RESTful endpoints for authentication and journal management. The source is in `backend/app/`.
+- **Mood-based music card**: Suggests a YouTube Music track that matches the mood of your latest journal entry so you can quickly listen to something uplifting.
 
 ### Architecture
 
@@ -31,7 +32,7 @@ python -m venv venv
 source venv/bin/activate
 ```
 
-2. Install dependencies:
+2. Install dependencies (includes `ytmusicapi` used by the new `/music` endpoint):
 
 ```bash
 pip install -r backend/requirements.txt
@@ -44,7 +45,7 @@ pip install -r backend/requirements.txt
 cd backend && uvicorn app.main:app --reload
 ```
 
-Once running you can try the music search endpoint:
+Once running you can try the new `/music` endpoint which searches YouTube Music for songs matching a mood. For example:
 
 ```bash
 curl "http://localhost:8000/api/v1/music?mood=happy"
