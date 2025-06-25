@@ -44,10 +44,17 @@ pip install -r backend/requirements.txt
 cd backend && uvicorn app.main:app --reload
 ```
 
-Once running you can try the music search endpoint:
+Once running you can try the music search endpoint or request a recommendation.
+The `/music/recommend` route analyzes your latest five journal entries with
+OpenRouter to produce a song keyword and then searches YouTube Music:
 
 ```bash
-curl "http://localhost:8000/api/v1/music?mood=happy"
+# search by mood
+curl "http://localhost:8000/api/v1/music?mood=happy" -H "Authorization: Bearer <token>"
+
+# get a song based on your last five journals
+curl http://localhost:8000/api/v1/music/recommend \
+     -H "Authorization: Bearer <token>"
 ```
 
 ### Database Migrations
@@ -76,7 +83,7 @@ The backend reads several variables from the environment:
 
 - `DATABASE_URL` – SQLAlchemy database URL (defaults to SQLite `sqlite:///./test.db`).
 - `SECRET_KEY` – secret key used for JWT creation (defaults to `supersecretkey`).
-- `OPENROUTER_API_KEY` – API key for the OpenRouter chat service.
+- `OPENROUTER_API_KEY` – API key for the OpenRouter chat and music recommendation service (required for `/music/recommend`).
 - `PLANNER_MODEL_NAME` – model name used by the conversation planner.
 - `GENERATOR_MODEL_NAME` – model name used by the response generator.
 - `APP_SITE_URL` – site URL sent in OpenRouter requests for identification.
@@ -104,7 +111,7 @@ Run the backend and then launch the Android app. The base URL used by the Androi
 
 ### Android Usage
 
-Long‑press any message in the conversation to enter selection mode. A delete icon will appear in the top bar so you can remove the selected messages, similar to how WhatsApp handles chat message deletion.
+Long‑press any message in the conversation to enter selection mode. A delete icon will appear in the top bar so you can remove the selected messages, similar to how WhatsApp handles chat message deletion. The home screen now automatically shows a recommended song based on your latest journals.
 
 ### Authentication workflow
 
