@@ -15,11 +15,12 @@ import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
 import com.psy.dear.domain.use_case.content.GetQuotesUseCase
 import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import com.psy.dear.util.TestCoroutineRule
+import com.psy.dear.presentation.home.UiEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -75,8 +76,7 @@ class HomeViewModelTest {
             val initialState = awaitItem()
             assertEquals(1, initialState.journals.size)
             assertEquals("Test 1", initialState.journals[0].title)
-            assertFalse(initialState.isLoading)
-            assertNull(initialState.error)
+            assertFalse(initialState.isRefreshing)
             assertEquals("TestUser", initialState.username)
         }
     }
@@ -92,12 +92,11 @@ class HomeViewModelTest {
 
             // Harapannya state menjadi loading
             var loadingState = awaitItem()
-            assertTrue(loadingState.isLoading)
+            assertTrue(loadingState.isRefreshing)
 
             // Setelah operasi selesai, state loading kembali false
             loadingState = awaitItem()
-            assertFalse(loadingState.isLoading)
-            assertNull(loadingState.error)
+            assertFalse(loadingState.isRefreshing)
         }
     }
 
@@ -106,17 +105,27 @@ class HomeViewModelTest {
         // Atur repository agar mengembalikan error
         fakeRepository.setShouldReturnError(true)
 
-        viewModel.state.test {
-            awaitItem() // Abaikan state awal
+        viewModel.eventFlow.test {
+            val stateJob = launch {
+                viewModel.state.test {
+                    awaitItem() // Abaikan state awal
 
-            viewModel.refresh()
+                    viewModel.refresh()
 
-            awaitItem() // State loading
+                    awaitItem() // State loading
 
-            val errorState = awaitItem()
-            assertFalse(errorState.isLoading)
-            val error = errorState.error as UiText.StringResource
-            assertEquals(R.string.error_unknown, error.resId)
+                    val errorState = awaitItem()
+                    assertFalse(errorState.isRefreshing)
+                }
+            }
+
+            val event = awaitItem()
+            assertEquals(
+                UiEvent.ShowSnackbar(UiText.StringResource(R.string.error_network)),
+                event
+            )
+            stateJob.cancel()
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
