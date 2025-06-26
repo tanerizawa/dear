@@ -55,6 +55,7 @@ cd ..
 ```bash
 cd backend && uvicorn app.main:app --reload
 ```
+> **Note**: If you run `uvicorn` from outside `backend/`, export `PYTHONPATH=backend` or run `python -m uvicorn backend.app.main:app --reload`.
 
 Once running you can try the music search endpoint or request a recommendation.
 The `/music/recommend` route analyzes your latest five journal entries with
