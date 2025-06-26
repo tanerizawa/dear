@@ -110,6 +110,8 @@ YouTube Music `oauth.json` file in the working directory:
 - `GENERATOR_MODEL_NAME` – model name used by the response generator.
 - `APP_SITE_URL` – site URL sent in OpenRouter requests for identification.
 - `APP_NAME` – application name reported to OpenRouter when making requests.
+- `OAUTH_CLIENT_ID` – optional YouTube OAuth client ID.
+- `OAUTH_CLIENT_SECRET` – optional YouTube OAuth client secret.
 
 Keep `oauth.json` next to your `.env` file inside the `backend/` directory.
 
@@ -126,6 +128,8 @@ PLANNER_MODEL_NAME=mistralai/mistral-7b-instruct
 GENERATOR_MODEL_NAME=google/gemma-7b-it
 APP_SITE_URL=https://yourdomain.com
 APP_NAME=Dear Diary
+OAUTH_CLIENT_ID=
+OAUTH_CLIENT_SECRET=
 ```
 
 After creating `.env` and `oauth.json` you can verify the setup with:
