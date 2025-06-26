@@ -183,11 +183,17 @@ The chat endpoint performs a basic emotion analysis on each message. The detecte
 
 ## Running Tests
 
-Install the backend dependencies first; the tests require the packages listed in `backend/requirements.txt`:
+Before running the tests you must install the backend requirements:
 
 ```bash
 pip install -r backend/requirements.txt
 pip install pytest pytest-asyncio
+```
+
+You can also use the helper script:
+
+```bash
+./scripts/install-test-deps.sh
 ```
 
 Run the suite with:
