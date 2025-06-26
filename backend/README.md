@@ -21,3 +21,8 @@ Run the development server from within this directory:
 ```bash
 uvicorn app.main:app --reload
 ```
+
+## Configuration
+
+Copy `.env.example` to `.env` and edit the values before running the server.
+The file lists all environment variables used by `app/core/config.py`.
