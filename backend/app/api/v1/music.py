@@ -3,10 +3,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from pathlib import Path
-from ytmusicapi import YTMusic
+from ytmusicapi import YTMusic, OAuthCredentials
 import structlog
 
 from app import crud, models, schemas, dependencies
+from app.core.config import settings
 from app.services.music_keyword_service import MusicKeywordService
 
 router = APIRouter()
@@ -14,7 +15,15 @@ log = structlog.get_logger(__name__)
 
 # Load OAuth credentials when available.
 OAUTH_PATH = Path(__file__).resolve().parent.parent / "oauth.json"
-ytmusic = YTMusic(str(OAUTH_PATH)) if OAUTH_PATH.exists() else YTMusic()
+
+if settings.OAUTH_CLIENT_ID and settings.OAUTH_CLIENT_SECRET:
+    creds = OAuthCredentials(
+        client_id=settings.OAUTH_CLIENT_ID,
+        client_secret=settings.OAUTH_CLIENT_SECRET,
+    )
+    ytmusic = YTMusic(str(OAUTH_PATH), oauth_credentials=creds)
+else:
+    ytmusic = YTMusic(str(OAUTH_PATH)) if OAUTH_PATH.exists() else YTMusic()
 
 @router.get("/", response_model=list[schemas.AudioTrack])
 def search_music(

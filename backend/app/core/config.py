@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     GENERATOR_MODEL_NAME: str = "deepseek/deepseek-chat-v3-0324"
     APP_SITE_URL: str = "https://bizmark.id"
     APP_NAME: str = "Dear Diary"
+    OAUTH_CLIENT_ID: str | None = None
+    OAUTH_CLIENT_SECRET: str | None = None
 
     class Config:
         env_file = ".env"
