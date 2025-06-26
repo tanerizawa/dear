@@ -6,13 +6,14 @@ import com.psy.dear.data.repository.FakeContentRepository
 import com.psy.dear.data.repository.FakeUserRepository
 import com.psy.dear.domain.model.Journal
 import com.psy.dear.domain.model.Article
+import com.psy.dear.domain.model.AudioTrack
+import com.psy.dear.domain.repository.ContentRepository
 import com.psy.dear.core.UiText
 import com.psy.dear.R
 import com.psy.dear.domain.use_case.journal.GetJournalsUseCase
 import com.psy.dear.domain.use_case.journal.SyncJournalsUseCase
 import com.psy.dear.domain.use_case.content.GetArticlesUseCase
 import com.psy.dear.domain.use_case.content.GetAudioTracksUseCase
-import com.psy.dear.domain.use_case.content.GetRecommendedMusicUseCase
 import com.psy.dear.domain.use_case.content.GetQuotesUseCase
 import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import com.psy.dear.util.TestCoroutineRule
@@ -20,6 +21,7 @@ import com.psy.dear.presentation.home.UiEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -27,6 +29,19 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.time.OffsetDateTime
+import kotlinx.coroutines.flow.first
+
+private class CountingGetRecommendedMusicUseCase(
+    private val repo: ContentRepository
+) {
+    var callCount = 0
+        private set
+
+    operator fun invoke(journals: List<Journal>): kotlinx.coroutines.flow.Flow<List<AudioTrack>> {
+        callCount++
+        return repo.getRecommendedMusic()
+    }
+}
 
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
@@ -42,7 +57,7 @@ class HomeViewModelTest {
     private lateinit var syncJournalsUseCase: SyncJournalsUseCase
     private lateinit var getArticles: GetArticlesUseCase
     private lateinit var getAudio: GetAudioTracksUseCase
-    private lateinit var getRecommendedMusic: GetRecommendedMusicUseCase
+    private lateinit var countingRecommendedMusic: CountingGetRecommendedMusicUseCase
     private lateinit var getQuotes: GetQuotesUseCase
     private lateinit var getUserProfile: GetUserProfileUseCase
 
@@ -55,7 +70,7 @@ class HomeViewModelTest {
         syncJournalsUseCase = SyncJournalsUseCase(fakeRepository)
         getArticles = GetArticlesUseCase(fakeContentRepo)
         getAudio = GetAudioTracksUseCase(fakeContentRepo)
-        getRecommendedMusic = GetRecommendedMusicUseCase(fakeContentRepo)
+        countingRecommendedMusic = CountingGetRecommendedMusicUseCase(fakeContentRepo)
         getQuotes = GetQuotesUseCase(fakeContentRepo)
         getUserProfile = GetUserProfileUseCase(fakeUserRepo)
 
@@ -67,7 +82,7 @@ class HomeViewModelTest {
             syncJournalsUseCase,
             getArticles,
             getAudio,
-            getRecommendedMusic,
+            countingRecommendedMusic,
             getQuotes,
             getUserProfile
         )
@@ -142,5 +157,16 @@ class HomeViewModelTest {
             assertEquals(1, initial.articles.size)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `recommended use case called once for unchanged journals`() = runTest {
+        viewModel.state.first() // trigger initial fetch
+        assertEquals(1, countingRecommendedMusic.callCount)
+
+        fakeRepository.emitUnchanged()
+        advanceUntilIdle()
+
+        assertEquals(1, countingRecommendedMusic.callCount)
     }
 }
