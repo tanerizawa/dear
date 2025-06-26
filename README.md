@@ -127,6 +127,15 @@ APP_SITE_URL=https://yourdomain.com
 APP_NAME=Dear Diary
 ```
 
+After creating `.env` and `oauth.json` you can verify the setup with:
+
+```bash
+python backend/check_env.py
+```
+
+This script ensures `OPENROUTER_API_KEY` is defined and that `backend/oauth.json`
+is present and readable.
+
 ## Usage
 
 
