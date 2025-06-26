@@ -103,6 +103,7 @@ async def recommend_music(
             musics.append(schemas.AudioTrack(id=idx, title=title, url=streaming_url))
 
     if not musics:
-        raise HTTPException(status_code=404, detail="No music found")
+        # When no music is found, return an empty list instead of a 404 error
+        return []
 
     return musics

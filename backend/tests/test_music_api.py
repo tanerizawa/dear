@@ -67,3 +67,24 @@ def test_music_recommend_uses_keyword_and_journals(client, monkeypatch):
     assert len(captured["journals"]) == 3
     assert captured["query"] == "lofi"
 
+
+def test_music_recommend_returns_empty_list_when_no_results(client, monkeypatch):
+    def fake_get_multi_by_owner(db, owner_id: int, skip: int = 0, limit: int = 100):
+        return []
+
+    async def fake_generate_keyword(self, journals):
+        return "lofi"
+
+    def fake_search(self, query, filter="songs", limit=20):
+        return []
+
+    monkeypatch.setattr(crud.journal, "get_multi_by_owner", fake_get_multi_by_owner)
+    monkeypatch.setattr(MusicKeywordService, "generate_keyword", fake_generate_keyword)
+    monkeypatch.setattr(YTMusic, "search", fake_search)
+
+    client_app, _ = client
+    resp = client_app.get("/api/v1/music/recommend")
+
+    assert resp.status_code == 200
+    assert resp.json() == []
+
