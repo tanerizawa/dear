@@ -15,7 +15,6 @@ import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Job
 import javax.inject.Inject
 import com.psy.dear.R // Pastikan import R sudah ada
 
@@ -52,19 +51,20 @@ class HomeViewModel @Inject constructor(
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
-    private var recommendationJob: Job? = null
-
     init {
         // Alur ini hanya mengambil dari database lokal, tidak akan pernah gagal
         getJournalsUseCase()
             .onEach { journals ->
                 _state.update { it.copy(journals = journals) }
-                recommendationJob?.cancel()
-                recommendationJob = getRecommendedMusicUseCase(journals.take(5))
-                    .onEach { tracks ->
-                        _state.update { it.copy(recommendedTracks = tracks) }
-                    }
-                    .launchIn(viewModelScope)
+            }
+            .map { it.take(5) }
+            .distinctUntilChanged()
+            .debounce(300)
+            .flatMapLatest { latest ->
+                getRecommendedMusicUseCase(latest)
+            }
+            .onEach { tracks ->
+                _state.update { it.copy(recommendedTracks = tracks) }
             }
             .launchIn(viewModelScope)
 
@@ -121,13 +121,6 @@ class HomeViewModel @Inject constructor(
                 )
             }
 
-            val latest = state.value.journals.take(5)
-            recommendationJob?.cancel()
-            recommendationJob = getRecommendedMusicUseCase(latest)
-                .onEach { tracks ->
-                    _state.update { it.copy(recommendedTracks = tracks) }
-                }
-                .launchIn(viewModelScope)
         }
     }
 }

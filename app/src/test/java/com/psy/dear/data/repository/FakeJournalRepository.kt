@@ -24,6 +24,10 @@ class FakeJournalRepository : JournalRepository {
         refreshFlow()
     }
 
+    fun emitUnchanged() {
+        refreshFlow()
+    }
+
     private fun refreshFlow() {
         journalsFlow.value = journals
     }
