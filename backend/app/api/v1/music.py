@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from pathlib import Path
 from ytmusicapi import YTMusic
 import structlog
 
@@ -10,7 +11,10 @@ from app.services.music_keyword_service import MusicKeywordService
 
 router = APIRouter()
 log = structlog.get_logger(__name__)
-ytmusic = YTMusic()
+
+# Load OAuth credentials when available.
+OAUTH_PATH = Path(__file__).resolve().parent.parent / "oauth.json"
+ytmusic = YTMusic(str(OAUTH_PATH)) if OAUTH_PATH.exists() else YTMusic()
 
 @router.get("/", response_model=list[schemas.AudioTrack])
 def search_music(

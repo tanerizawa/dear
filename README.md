@@ -73,9 +73,10 @@ curl "http://localhost:8000/api/v1/music?mood=happy" -H "Authorization: Bearer <
 
 The music routes use [ytmusicapi](https://github.com/sigma67/ytmusicapi).
 After completing the setup step above you should have an `oauth.json`
-file. Make sure this file stays in the directory from which you run the
-backend (`backend/` when using the commands above), otherwise the
-`YTMusic` client will fail to authenticate.
+file. Leave this file inside the `backend/` directory. The backend will
+automatically load it on startup when present; if the file is missing
+the music endpoints run in unauthenticated mode which has limited
+access to some songs.
 
 ### Database Migrations
 
