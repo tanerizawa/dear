@@ -15,13 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -83,13 +81,15 @@ fun AudioPlayerScreen(
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 factory = { context ->
-                    // PERBAIKAN: Buat instance YouTubePlayerView tanpa inisialisasi otomatis
-                    // dengan menambahkan parameter kedua di konstruktor.
                     YouTubePlayerView(context).apply {
-                        // Hapus baris ini untuk mencegah inisialisasi ganda
-                        // lifecycleOwner.lifecycle.addObserver(this)
+                        // --- PERBAIKAN DI SINI ---
+                        // Biarkan library menginisialisasi dirinya sendiri secara otomatis
+                        // dengan mengaitkannya ke lifecycle.
+                        lifecycleOwner.lifecycle.addObserver(this)
 
-                        val listener = object : AbstractYouTubePlayerListener() {
+                        // Cukup tambahkan listener untuk bereaksi saat pemutar siap.
+                        // Jangan panggil initialize() secara manual.
+                        addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
                             override fun onReady(youTubePlayer: YouTubePlayer) {
                                 player = youTubePlayer
                                 currentTrack?.let {
@@ -102,7 +102,6 @@ fun AudioPlayerScreen(
                                 state: com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState
                             ) {
                                 isPlaying = state == com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.PLAYING
-                                // Otomatis putar lagu berikutnya saat lagu selesai
                                 if (state == com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.ENDED) {
                                     if (tracks.isNotEmpty()) {
                                         currentIndex = (currentIndex + 1) % tracks.size
@@ -116,13 +115,7 @@ fun AudioPlayerScreen(
                             ) {
                                 Log.e("YouTubePlayer", "Error: $error")
                             }
-                        }
-
-                        // Opsi untuk menyembunyikan UI video dan hanya memutar audio
-                        val options = IFramePlayerOptions.Builder().controls(0).build()
-
-                        // Inisialisasi pemutar secara manual dengan listener dan opsi
-                        initialize(listener, options)
+                        })
                     }
                 }
             )
@@ -135,7 +128,7 @@ fun AudioPlayerScreen(
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Rekomendasi YouTube", // Teks placeholder yang lebih baik
+                text = "Rekomendasi YouTube",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
