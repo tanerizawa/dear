@@ -1,3 +1,5 @@
+"""Utilities for generating a music keyword suggestion."""
+
 import httpx
 import structlog
 from typing import List, Dict
