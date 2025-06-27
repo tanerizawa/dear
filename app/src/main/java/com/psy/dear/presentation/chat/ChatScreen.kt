@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.psy.dear.core.asString
 import com.psy.dear.domain.model.ChatMessage
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +33,6 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatScreen(
-    navController: NavController,
     onNavigateToLogin: () -> Unit,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
@@ -102,14 +100,12 @@ fun ChatScreen(
                     ChatMessageItem(
                         message = message,
                         selected = uiState.selectedIds.contains(message.id),
-                        selectionMode = uiState.selectionMode,
                         onClick = {
                             if (uiState.selectionMode) {
                                 viewModel.onEvent(ChatEvent.ToggleSelection(message.id))
                             }
                         },
-                        onLongPress = { viewModel.onEvent(ChatEvent.EnterSelection(message.id)) },
-                        onDelete = { viewModel.onEvent(ChatEvent.DeleteMessage(message.id)) }
+                        onLongPress = { viewModel.onEvent(ChatEvent.EnterSelection(message.id)) }
                     )
                 }
             }
@@ -137,7 +133,7 @@ fun ChatTopBar(
         navigationIcon = {
             if (selectionMode) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Back")
                 }
             }
         },
@@ -211,10 +207,8 @@ fun ChatInputBar(
 fun ChatMessageItem(
     message: ChatMessage,
     selected: Boolean,
-    selectionMode: Boolean,
     onClick: () -> Unit,
     onLongPress: () -> Unit,
-    onDelete: () -> Unit
 ) {
     val isUser = message.role == "user"
     Row(
