@@ -15,6 +15,8 @@ import com.psy.dear.domain.use_case.user.GetUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 import com.psy.dear.R // Pastikan import R sudah ada
 
@@ -34,6 +36,7 @@ sealed class UiEvent {
 }
 
 @HiltViewModel
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class HomeViewModel @Inject constructor(
     getJournalsUseCase: GetJournalsUseCase,
     private val syncJournalsUseCase: SyncJournalsUseCase,
