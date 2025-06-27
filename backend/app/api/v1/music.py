@@ -16,33 +16,37 @@ log = structlog.get_logger(__name__)
 
 # --- Blok Inisialisasi ---
 OAUTH_PATH = Path(__file__).resolve().parent.parent.parent.parent / "oauth.json"
+AUTH_ARG = str(OAUTH_PATH) if OAUTH_PATH.exists() else None
 
 if not OAUTH_PATH.exists():
-    raise FileNotFoundError(
-        f"Authentication file not found at {OAUTH_PATH}. "
-        "Please run 'ytmusicapi oauth' in your terminal in the 'backend' directory."
+    log.warning(
+        "Authentication file not found at %s. Running in unauthenticated mode.",
+        OAUTH_PATH,
     )
 
-if not settings.OAUTH_CLIENT_ID or not settings.OAUTH_CLIENT_SECRET:
-    raise ValueError(
-        "OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET are not set in your .env file. "
-        "Please get them from Google Cloud Console and add them to your environment."
+creds = None
+if settings.OAUTH_CLIENT_ID and settings.OAUTH_CLIENT_SECRET:
+    creds = OAuthCredentials(
+        client_id=settings.OAUTH_CLIENT_ID,
+        client_secret=settings.OAUTH_CLIENT_SECRET,
     )
-
-creds = OAuthCredentials(
-    client_id=settings.OAUTH_CLIENT_ID,
-    client_secret=settings.OAUTH_CLIENT_SECRET,
-)
 
 # --- PERBAIKAN FINAL DI SINI ---
 # Mengubah 'language' ke 'en' (English) yang didukung oleh library.
 # 'location' tetap 'ID' untuk memastikan hasil pencarian relevan dengan Indonesia.
-ytmusic = YTMusic(
-    str(OAUTH_PATH),
-    oauth_credentials=creds,
-    language='en',
-    location='ID'
-)
+if creds:
+    ytmusic = YTMusic(
+        AUTH_ARG,
+        oauth_credentials=creds,
+        language='en',
+        location='ID'
+    )
+else:
+    ytmusic = YTMusic(
+        AUTH_ARG,
+        language='en',
+        location='ID'
+    )
 # --- Akhir Perbaikan ---
 
 def _process_search_results(search_results: list) -> list[schemas.AudioTrack]:
@@ -100,7 +104,7 @@ async def recommend_music(
     keyword_service: MusicKeywordService = Depends(),
 ):
     journals = crud.journal.get_multi_by_owner(
-        db=db, owner_id=current_user.id, limit=5, order_by="created_at desc"
+        db=db, owner_id=current_user.id, limit=5
     )
 
     musics = []
