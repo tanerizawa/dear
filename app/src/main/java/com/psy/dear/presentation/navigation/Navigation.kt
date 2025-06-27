@@ -1,20 +1,19 @@
 package com.psy.dear.presentation.navigation
 
-import androidx.compose.animation.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigation
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.psy.dear.presentation.auth.login.LoginScreen
 import com.psy.dear.presentation.auth.register.RegisterScreen
 import com.psy.dear.presentation.main.MainScreen
 import com.psy.dear.presentation.onboarding.OnboardingScreen
-import java.net.URLDecoder
 import java.net.URLEncoder
 
 sealed class Screen(val route: String, val title: String? = null, val icon: ImageVector? = null) {
@@ -28,7 +27,7 @@ sealed class Screen(val route: String, val title: String? = null, val icon: Imag
     // --- Main Screens (Bottom Navigation) ---
     object Home : Screen("home", "Beranda", Icons.Outlined.Home)
     object Chat : Screen("chat", "Chat", Icons.Outlined.ChatBubbleOutline)
-    object Growth : Screen("growth", "Pertumbuhan", Icons.Outlined.ShowChart)
+    object Growth : Screen("growth", "Pertumbuhan", Icons.AutoMirrored.Outlined.ShowChart)
     object Services : Screen("services", "Layanan", Icons.Outlined.FavoriteBorder)
     object Profile : Screen("profile", "Profil", Icons.Outlined.PersonOutline)
 
@@ -62,15 +61,12 @@ sealed class Screen(val route: String, val title: String? = null, val icon: Imag
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppNavigation(startDestination: String) {
-    val navController: NavHostController = rememberAnimatedNavController()
-    AnimatedNavHost(
+    val navController: NavHostController = rememberNavController()
+    NavHost(
         navController = navController,
-        startDestination = startDestination,
-        enterTransition = { fadeIn(animationSpec = androidx.compose.animation.core.tween(300)) },
-        exitTransition = { fadeOut(animationSpec = androidx.compose.animation.core.tween(300)) }
+        startDestination = startDestination
     ) {
         composable(Screen.Onboarding.route) {
             OnboardingScreen(onFinished = {
