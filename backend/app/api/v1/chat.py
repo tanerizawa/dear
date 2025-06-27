@@ -19,6 +19,7 @@ def get_latest_journal(db: Session, user: models.User) -> str:
         db=db,
         owner_id=user.id,
         limit=1,
+        order_by="created_at desc",
     )
     return journals[0].content if journals else ""
 
