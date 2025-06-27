@@ -4,8 +4,8 @@ This document lists outstanding tasks and ideas for future development. Feel fre
 
 - Implement navigation from the Home screen journal list to a detail screen so entries can be viewed individually.
 - Add additional DASS and MBTI questions in [`TestData.kt`](app/src/main/java/com/psy/dear/data/static/TestData.kt) to provide more comprehensive assessments.
-- Provide a `requirements.txt` for the backend along with setup instructions so the API can be run independently.
 - Expand unit and UI test coverage for both the Android app and the backend.
 - Remove any leftover shell prompt lines in existing files.
 - Document environment variables for the new AI chat features in the README.
+- Update `backend/README.md` with instructions for running the test suite.
 
