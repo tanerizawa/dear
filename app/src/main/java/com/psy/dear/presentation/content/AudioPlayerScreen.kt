@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,7 +30,6 @@ fun AudioPlayerScreen(
     trackUrl: String,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val state by homeViewModel.state.collectAsState()
     val tracks = state.audio + state.recommendedTracks
     var currentIndex by remember(tracks, trackUrl) {
