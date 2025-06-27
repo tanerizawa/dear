@@ -1,6 +1,8 @@
 package com.psy.dear.presentation.content
 
+import android.graphics.Bitmap
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,9 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.google.accompanist.web.LoadingState
-import com.google.accompanist.web.WebView
-import com.google.accompanist.web.rememberWebViewState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,16 +23,25 @@ fun ArticleDetailScreen(
     title: String,
     url: String
 ) {
-    // State untuk WebView, termasuk URL yang akan dimuat
-    val webViewState = rememberWebViewState(url = url)
+    var isLoading by remember { mutableStateOf(true) }
 
-    // --- REVISI DI SINI ---
-    // Kita dapatkan status loading langsung dari webViewState
-    val loadingState = webViewState.loadingState
-    val isLoading = loadingState is LoadingState.Loading
+    val context = LocalContext.current
+    val webView = remember {
+        WebView(context).apply {
+            webViewClient = object : WebViewClient() {
+                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                    isLoading = true
+                    super.onPageStarted(view, url, favicon)
+                }
 
-    // Kita tidak perlu lagi membuat custom WebViewClient
-    // val webViewClient = remember { ... } // HAPUS BLOK INI
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    isLoading = false
+                    super.onPageFinished(view, url)
+                }
+            }
+            loadUrl(url)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -53,12 +63,9 @@ fun ArticleDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            WebView(
-                state = webViewState,
-                modifier = Modifier.fillMaxSize(),
-                // --- REVISI DI SINI ---
-                // Parameter client tidak lagi diperlukan karena kita tidak membuat client custom
-                // client = webViewClient // HAPUS BARIS INI
+            AndroidView(
+                factory = { webView },
+                modifier = Modifier.fillMaxSize()
             )
 
             // Tampilkan progress indicator jika sedang loading

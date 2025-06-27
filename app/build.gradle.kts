@@ -58,8 +58,6 @@ android {
 }
 
 dependencies {
-    // Accompanist WebView
-    implementation("com.google.accompanist:accompanist-webview:0.34.0")
     // Core & UI
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
