@@ -18,3 +18,10 @@ local.properties
 
 # Ignore Python cache directories
 backend/**/__pycache__/
+.idea/deploymentTargetSelector.xml
+gradle/wrapper/gradle-wrapper.jar
+gradle/wrapper/gradle-wrapper.properties
+gradlew.bat
+gradlew.bat
+*.bat
+/.idea
