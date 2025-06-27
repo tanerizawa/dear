@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Simple setup validation for Dear Diary backend.
 
-Checks that OPENROUTER_API_KEY is defined in the .env file and that
-`backend/oauth.json` exists and is readable.
+Checks that OPENROUTER_API_KEY and Spotify credentials are defined in
+the `.env` file.
 """
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parent
 ENV_PATH = ROOT / ".env"
-OAUTH_PATH = ROOT / "oauth.json"
 
 missing = []
 
@@ -28,11 +27,8 @@ else:
             env_vars[key.strip()] = value.strip()
     if not env_vars.get("OPENROUTER_API_KEY"):
         missing.append("OPENROUTER_API_KEY not set in .env")
-
-if not OAUTH_PATH.is_file():
-    missing.append(f"Missing {OAUTH_PATH}")
-elif not os.access(OAUTH_PATH, os.R_OK):
-    missing.append(f"{OAUTH_PATH} is not readable")
+    if not env_vars.get("SPOTIFY_CLIENT_ID") or not env_vars.get("SPOTIFY_CLIENT_SECRET"):
+        missing.append("SPOTIFY_CLIENT_ID/SPOTIFY_CLIENT_SECRET not set in .env")
 
 if missing:
     for m in missing:

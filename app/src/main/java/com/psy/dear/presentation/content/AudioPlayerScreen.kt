@@ -1,5 +1,6 @@
 package com.psy.dear.presentation.content
 
+import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,16 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.psy.dear.presentation.home.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,9 +28,10 @@ import com.psy.dear.presentation.home.HomeViewModel
 fun AudioPlayerScreen(
     navController: NavController,
     trackTitle: String,
-    trackUrl: String, // Ini sekarang berisi videoId
+    trackUrl: String,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val state by homeViewModel.state.collectAsState()
     val tracks = remember(state.audio, state.recommendedTracks) {
         state.audio + state.recommendedTracks
@@ -45,14 +42,25 @@ fun AudioPlayerScreen(
     val currentTrack = tracks.getOrNull(currentIndex)
 
     var isPlaying by remember { mutableStateOf(true) }
-    var player: YouTubePlayer? by remember { mutableStateOf(null) }
-    val lifecycleOwner = LocalLifecycleOwner.current
+    var player by remember { mutableStateOf<MediaPlayer?>(null) }
 
-    // Memuat ulang video ketika currentIndex berubah
-    LaunchedEffect(currentIndex, player) {
-        currentTrack?.let {
-            player?.loadVideo(it.url, 0f)
+    DisposableEffect(currentIndex) {
+        val url = currentTrack?.url ?: trackUrl
+        val mediaPlayer = MediaPlayer()
+        try {
+            mediaPlayer.setDataSource(url)
+            mediaPlayer.prepare()
+            mediaPlayer.start()
+            mediaPlayer.setOnCompletionListener {
+                if (tracks.isNotEmpty()) {
+                    currentIndex = (currentIndex + 1) % tracks.size
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("AudioPlayer", "Error loading track", e)
         }
+        player = mediaPlayer
+        onDispose { mediaPlayer.release() }
     }
 
     Scaffold(
@@ -75,53 +83,6 @@ fun AudioPlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Gunakan AndroidView untuk menampung YouTubePlayerView
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                factory = { context ->
-                    YouTubePlayerView(context).apply {
-                        // --- PERBAIKAN DI SINI ---
-                        // Biarkan library menginisialisasi dirinya sendiri secara otomatis
-                        // dengan mengaitkannya ke lifecycle.
-                        lifecycleOwner.lifecycle.addObserver(this)
-
-                        // Cukup tambahkan listener untuk bereaksi saat pemutar siap.
-                        // Jangan panggil initialize() secara manual.
-                        addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-                            override fun onReady(youTubePlayer: YouTubePlayer) {
-                                player = youTubePlayer
-                                currentTrack?.let {
-                                    youTubePlayer.loadVideo(it.url, 0f)
-                                }
-                            }
-
-                            override fun onStateChange(
-                                youTubePlayer: YouTubePlayer,
-                                state: com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState
-                            ) {
-                                isPlaying = state == com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.PLAYING
-                                if (state == com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.ENDED) {
-                                    if (tracks.isNotEmpty()) {
-                                        currentIndex = (currentIndex + 1) % tracks.size
-                                    }
-                                }
-                            }
-
-                            override fun onError(
-                                youTubePlayer: YouTubePlayer,
-                                error: com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerError
-                            ) {
-                                Log.e("YouTubePlayer", "Error: $error")
-                            }
-                        })
-                    }
-                }
-            )
-
             Spacer(Modifier.height(32.dp))
 
             Text(
@@ -130,14 +91,13 @@ fun AudioPlayerScreen(
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Rekomendasi YouTube",
+                text = "Rekomendasi Spotify",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(Modifier.height(24.dp))
 
-            // Kontrol Pemutar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -152,10 +112,13 @@ fun AudioPlayerScreen(
                 }
 
                 IconButton(onClick = {
-                    if (isPlaying) {
-                        player?.pause()
-                    } else {
-                        player?.play()
+                    player?.let {
+                        if (isPlaying) {
+                            it.pause()
+                        } else {
+                            it.start()
+                        }
+                        isPlaying = !isPlaying
                     }
                 }, modifier = Modifier.size(72.dp)) {
                     Icon(

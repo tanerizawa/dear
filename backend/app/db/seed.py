@@ -12,11 +12,11 @@ ARTICLES = [
 AUDIO_TRACKS = [
     {
         "title": "Relaxing Piano",
-        "url": "https://music.youtube.com/watch?v=9E6b3swbnWg",
+        "url": "https://open.spotify.com/track/6xGruZOHLs39ZbVccQTuPZ",
     },
     {
         "title": "Nature Sounds",
-        "url": "https://music.youtube.com/watch?v=eKFTSSKCzWA",
+        "url": "https://open.spotify.com/track/1DWoCzCRlaKY9cRkZZEwQp",
     },
 ]
 

@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from pathlib import Path
-from ytmusicapi import YTMusic, OAuthCredentials
+from spotipy import Spotify
+from spotipy.oauth2 import SpotifyClientCredentials
 import structlog
 import re
 
@@ -15,38 +15,26 @@ router = APIRouter()
 log = structlog.get_logger(__name__)
 
 # --- Blok Inisialisasi yang Diperkuat (Sudah Benar) ---
-OAUTH_PATH = Path(__file__).resolve().parent.parent.parent.parent / "oauth.json"
-if not OAUTH_PATH.exists():
-    raise FileNotFoundError(
-        f"Authentication file not found at {OAUTH_PATH}. "
-        "Please run 'ytmusicapi oauth' in your terminal in the 'backend' directory."
-    )
-
-if not settings.OAUTH_CLIENT_ID or not settings.OAUTH_CLIENT_SECRET:
+if not settings.SPOTIFY_CLIENT_ID or not settings.SPOTIFY_CLIENT_SECRET:
     raise ValueError(
-        "OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET must be set in your .env file."
+        "SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET must be set in your .env file."
     )
 
 try:
-    creds = OAuthCredentials(
-        client_id=settings.OAUTH_CLIENT_ID,
-        client_secret=settings.OAUTH_CLIENT_SECRET,
+    creds = SpotifyClientCredentials(
+        client_id=settings.SPOTIFY_CLIENT_ID,
+        client_secret=settings.SPOTIFY_CLIENT_SECRET,
     )
-    ytmusic = YTMusic(
-        str(OAUTH_PATH),
-        oauth_credentials=creds,
-        language='en',
-        location='ID'
-    )
-    log.info("YTMusic berhasil diinisialisasi dengan otentikasi penuh.")
+    spotify = Spotify(auth_manager=creds)
+    log.info("Spotify client initialized")
 except Exception as e:
-    log.error("Gagal menginisialisasi YTMusic. Periksa kredensial Anda.", error=str(e))
+    log.error("Failed to initialize Spotify client", error=str(e))
     raise e
 # --- Akhir Blok Inisialisasi ---
 
 
 # --- PERBAIKAN LOGIKA FUNDAMENTAL DI SINI ---
-def _process_search_results(search_results: list) -> list[schemas.AudioTrack]:
+def _process_search_results(search_results: dict) -> list[schemas.AudioTrack]:
     """
     Helper function to process search results and return a list of AudioTrack.
     Tugas fungsi ini HANYA untuk memformat hasil pencarian, BUKAN untuk mendapatkan URL stream.
@@ -55,16 +43,14 @@ def _process_search_results(search_results: list) -> list[schemas.AudioTrack]:
     if not search_results:
         return musics
 
-    for idx, track in enumerate(search_results, start=1):
-        video_id = track.get("videoId")
-        title = track.get("title")
-
-        # Kita hanya butuh videoId dan title. URL akan dibuat di sisi klien.
-        if video_id and title:
-            # Mengirim videoId sebagai 'url' untuk sementara, klien akan menanganinya.
-            # Atau klien bisa langsung menggunakan field 'videoId' jika modelnya diubah.
-            # Untuk kompatibilitas, kita akan tetap mengisi field 'url' dengan videoId.
-            musics.append(schemas.AudioTrack(id=idx, title=title, url=video_id))
+    tracks = search_results.get("tracks", {}).get("items", [])
+    for idx, track in enumerate(tracks, start=1):
+        title = track.get("name")
+        preview = track.get("preview_url")
+        external = track.get("external_urls", {}).get("spotify")
+        url = preview or external or track.get("id")
+        if url and title:
+            musics.append(schemas.AudioTrack(id=idx, title=title, url=url))
 
     return musics
 # --- AKHIR PERBAIKAN ---
@@ -79,7 +65,7 @@ def search_music(
         raise HTTPException(status_code=400, detail="Mood parameter is required")
 
     try:
-        search_results = ytmusic.search(query=mood, filter="songs", limit=20)
+        search_results = spotify.search(q=mood, type="track", limit=20)
         musics = _process_search_results(search_results)
     except Exception as e:
         log.error("Pencarian musik manual gagal", query=mood, error=str(e))
@@ -111,7 +97,7 @@ async def recommend_music(
 
             if cleaned_keyword:
                 log.info("Mencoba rekomendasi dengan kata kunci AI", keyword=cleaned_keyword)
-                search_results = ytmusic.search(query=cleaned_keyword, filter="songs", limit=20)
+                search_results = spotify.search(q=cleaned_keyword, type="track", limit=20)
                 musics = _process_search_results(search_results)
 
             if not musics:
@@ -123,7 +109,7 @@ async def recommend_music(
                 }
                 fallback_keyword = fallback_map.get(mood, "musik instrumental santai")
                 log.info("Pencarian AI gagal, mencoba fallback", fallback_keyword=fallback_keyword)
-                search_results_fallback = ytmusic.search(query=fallback_keyword, filter="songs", limit=20)
+                search_results_fallback = spotify.search(q=fallback_keyword, type="track", limit=20)
                 musics = _process_search_results(search_results_fallback)
         except Exception as e:
             log.error("Gagal mendapatkan rekomendasi cerdas", error=str(e))
@@ -131,7 +117,7 @@ async def recommend_music(
     if not musics:
         try:
             log.warning("Semua rekomendasi gagal, memberikan daftar default.")
-            default_search_results = ytmusic.search(query="top hits indonesia", filter="songs", limit=20)
+            default_search_results = spotify.search(q="top hits indonesia", type="track", limit=20)
             musics = _process_search_results(default_search_results)
         except Exception as e:
             log.error("Gagal mendapatkan rekomendasi default", error=str(e))

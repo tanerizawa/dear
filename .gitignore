@@ -24,4 +24,3 @@ gradle/wrapper/gradle-wrapper.properties
 gradlew.bat
 *.bat
 /.idea
-backend/oauth.json
