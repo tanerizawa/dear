@@ -37,7 +37,7 @@ private class CountingGetRecommendedMusicUseCase(
     var callCount = 0
         private set
 
-    operator fun invoke(journals: List<Journal>): kotlinx.coroutines.flow.Flow<List<AudioTrack>> {
+    operator fun invoke(_: List<Journal>): kotlinx.coroutines.flow.Flow<List<AudioTrack>> {
         callCount++
         return repo.getRecommendedMusic()
     }
