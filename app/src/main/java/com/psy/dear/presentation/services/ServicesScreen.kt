@@ -6,11 +6,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServicesScreen(navController: NavController) {
+fun ServicesScreen() {
     Scaffold(
         topBar = { TopAppBar(title = { Text("Layanan") }) }
     ) { padding ->
