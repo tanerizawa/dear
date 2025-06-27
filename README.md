@@ -43,8 +43,8 @@ pip install -r backend/requirements.txt
 ```bash
 cd backend
 python - <<'EOF'
-from ytmusicapi import YTMusic
-YTMusic.setup_oauth()
+from ytmusicapi import setup_oauth
+setup_oauth()
 EOF
 cd ..
 ```
