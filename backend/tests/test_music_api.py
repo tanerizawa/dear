@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import AsyncMock
-from ytmusicapi import YTMusic
+from spotipy import Spotify
 
 from app import crud
 from app.models.journal import Journal
@@ -10,25 +10,20 @@ from app.services.music_keyword_service import MusicKeywordService
 
 
 def test_music_endpoint_returns_list(client, monkeypatch):
-    # --- PERBAIKAN 1: Logika Tes Disesuaikan ---
-    # Tes ini sekarang memeriksa bahwa backend mengembalikan videoId, bukan URL streaming.
-    def fake_search(self, query, filter="songs", limit=20, language='en', location='ID'):
-        return [{"title": "Song", "videoId": "abc123"}]
+    # Return fake Spotify search payload
+    def fake_search(self, q, type="track", limit=20):
+        return {"tracks": {"items": [{"name": "Song", "id": "abc123"}]}}
 
     # Kita tidak lagi memanggil get_song di backend, jadi mock ini bisa disederhanakan/dihapus.
     # Namun, kita biarkan untuk keamanan jika ada logika lain yang mungkin memanggilnya.
-    def fake_get_song(self, videoId):
-        return {}
-
-    monkeypatch.setattr(YTMusic, "search", fake_search)
-    monkeypatch.setattr(YTMusic, "get_song", fake_get_song)
+    monkeypatch.setattr(Spotify, "search", fake_search)
 
     client_app, _ = client
     resp = client_app.get("/api/v1/music?mood=test")
     assert resp.status_code == 200
     data = resp.json()
     assert isinstance(data, list)
-    assert data[0]["url"] == "abc123" # Memeriksa videoId
+    assert data[0]["url"] == "abc123"
 
 
 def test_music_recommend_uses_keyword_and_journals(client, monkeypatch):
@@ -44,18 +39,14 @@ def test_music_recommend_uses_keyword_and_journals(client, monkeypatch):
         captured["journals"] = journals
         return "lofi"
 
-    def fake_search(self, query, filter="songs", limit=20, language='en', location='ID'):
-        captured["query"] = query
-        return [{"title": "Song", "videoId": "xyz"}]
+    def fake_search(self, q, type="track", limit=20):
+        captured["query"] = q
+        return {"tracks": {"items": [{"name": "Song", "id": "xyz"}]}}
 
     # Mock ini tidak lagi dipanggil oleh logika utama, tetapi kita biarkan untuk keamanan.
-    def fake_get_song(self, videoId):
-        return {}
-
     monkeypatch.setattr(crud.journal, "get_multi_by_owner", fake_get_multi_by_owner)
     monkeypatch.setattr(MusicKeywordService, "generate_keyword", fake_generate_keyword)
-    monkeypatch.setattr(YTMusic, "search", fake_search)
-    monkeypatch.setattr(YTMusic, "get_song", fake_get_song)
+    monkeypatch.setattr(Spotify, "search", fake_search)
 
     client_app, _ = client
     resp = client_app.get("/api/v1/music/recommend")
@@ -75,12 +66,12 @@ def test_music_recommend_returns_empty_list_when_no_results(client, monkeypatch)
         return "keyword_yang_tidak_ada_hasilnya"
 
     # Mock search sekarang mengembalikan list kosong untuk semua query
-    def fake_search(self, query, filter="songs", limit=20, language='en', location='ID'):
-        return []
+    def fake_search(self, q, type="track", limit=20):
+        return {"tracks": {"items": []}}
 
     monkeypatch.setattr(crud.journal, "get_multi_by_owner", fake_get_multi_by_owner)
     monkeypatch.setattr(MusicKeywordService, "generate_keyword", fake_generate_keyword)
-    monkeypatch.setattr(YTMusic, "search", fake_search)
+    monkeypatch.setattr(Spotify, "search", fake_search)
 
     client_app, _ = client
     resp = client_app.get("/api/v1/music/recommend")

@@ -37,16 +37,11 @@ source venv/bin/activate
 pip install -r backend/requirements.txt
 ```
 
-3. Generate the YouTube Music OAuth credentials. Run this inside the
-   `backend/` directory so the resulting `oauth.json` is saved there:
+3. Provide Spotify API credentials in a `.env` file inside `backend/`:
 
 ```bash
-cd backend
-python - <<'EOF'
-from ytmusicapi import setup_oauth
-setup_oauth()
-EOF
-cd ..
+SPOTIFY_CLIENT_ID=<your-client-id>
+SPOTIFY_CLIENT_SECRET=<your-client-secret>
 ```
 
 4. Start the development server **from inside** the `backend/` directory to avoid
@@ -59,7 +54,7 @@ cd backend && uvicorn app.main:app --reload
 
 Once running you can try the music search endpoint or request a recommendation.
 The `/music/recommend` route analyzes your latest five journal entries with
-OpenRouter to produce a song keyword and then searches YouTube Music:
+OpenRouter to produce a song keyword and then searches Spotify:
 
 ```bash
 # search by mood
@@ -70,14 +65,11 @@ curl "http://localhost:8000/api/v1/music?mood=happy" -H "Authorization: Bearer <
      -H "Authorization: Bearer <token>"
 ```
 
-### YouTube Music OAuth
+### Spotify Web API
 
-The music routes use [ytmusicapi](https://github.com/sigma67/ytmusicapi).
-After completing the setup step above you should have an `oauth.json`
-file. Leave this file inside the `backend/` directory. The backend will
-automatically load it on startup when present; if the file is missing
-the music endpoints run in unauthenticated mode which has limited
-access to some songs.
+Music search now relies on the [Spotify Web API](https://developer.spotify.com/documentation/web-api/).
+Create a developer application on the Spotify dashboard and provide its
+client credentials in your `.env` file as shown above.
 
 ### Database Migrations
 
@@ -101,8 +93,8 @@ make seed
 
 ### Environment Variables
 
-The backend reads several variables from the environment and expects a
-YouTube Music `oauth.json` file in the working directory:
+The backend reads several variables from the environment. Provide a
+`.env` file with these values:
 
 - `DATABASE_URL` – SQLAlchemy database URL (defaults to SQLite `sqlite:///./test.db`).
 - `SECRET_KEY` – secret key used for JWT creation (defaults to `supersecretkey`).
@@ -111,10 +103,9 @@ YouTube Music `oauth.json` file in the working directory:
 - `GENERATOR_MODEL_NAME` – model name used by the response generator.
 - `APP_SITE_URL` – site URL sent in OpenRouter requests for identification.
 - `APP_NAME` – application name reported to OpenRouter when making requests.
-- `OAUTH_CLIENT_ID` – optional YouTube OAuth client ID.
-- `OAUTH_CLIENT_SECRET` – optional YouTube OAuth client secret.
+- `SPOTIFY_CLIENT_ID` – Spotify Web API client ID.
+- `SPOTIFY_CLIENT_SECRET` – Spotify Web API client secret.
 
-Keep `oauth.json` next to your `.env` file inside the `backend/` directory.
 
 To use the AI features you need an OpenRouter account. Sign up at
 [OpenRouter](https://openrouter.ai) and generate an API key from the dashboard.
@@ -129,18 +120,17 @@ PLANNER_MODEL_NAME=mistralai/mistral-7b-instruct
 GENERATOR_MODEL_NAME=google/gemma-7b-it
 APP_SITE_URL=https://yourdomain.com
 APP_NAME=Dear Diary
-OAUTH_CLIENT_ID=
-OAUTH_CLIENT_SECRET=
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
 ```
 
-After creating `.env` and `oauth.json` you can verify the setup with:
+After creating `.env` you can verify the setup with:
 
 ```bash
 python backend/check_env.py
 ```
 
-This script ensures `OPENROUTER_API_KEY` is defined and that `backend/oauth.json`
-is present and readable.
+This script ensures `OPENROUTER_API_KEY` and the Spotify credentials are defined.
 
 ## Usage
 
