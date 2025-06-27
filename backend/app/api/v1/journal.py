@@ -1,4 +1,4 @@
-# backend/app/api/v1/journal.py
+# backend/app/api/v1/journal.py (Versi Perbaikan)
 
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from sqlalchemy.orm import Session
@@ -25,7 +25,7 @@ def create_journal(
     journal = crud.journal.create_with_owner(db=db, obj_in=journal_in, owner_id=current_user.id)
 
     log.info(
-        "Jurnal dibuat, penjadwalan analisis ditangguhkan sementara", # Improved log message clarity
+        "Jurnal dibuat, penjadwalan analisis ditangguhkan sementara",
         user_id=current_user.id,
         journal_id=journal.id,
     )
@@ -39,8 +39,16 @@ def read_journals(
         limit: int = 100,
         current_user: models.User = Depends(get_current_user),
 ):
-    limit = min(limit, 100)  # Avoid large data requests
+    limit = min(limit, 100)
     journals = crud.journal.get_multi_by_owner(
         db, owner_id=current_user.id, skip=skip, limit=limit, order_by="created_at desc"
     )
+
+    # --- PERBAIKAN DI SINI ---
+    # Secara eksplisit menangani kasus di mana tidak ada jurnal yang ditemukan
+    # dan langsung mengembalikan daftar kosong untuk mencegah error lebih lanjut.
+    if not journals:
+        return []
+
     return journals
+

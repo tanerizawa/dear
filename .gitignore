@@ -22,6 +22,6 @@ backend/**/__pycache__/
 gradle/wrapper/gradle-wrapper.jar
 gradle/wrapper/gradle-wrapper.properties
 gradlew.bat
-gradlew.bat
 *.bat
 /.idea
+backend/oauth.json
