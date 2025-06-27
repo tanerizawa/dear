@@ -1,5 +1,5 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     DATABASE_URL: str = os.environ.get("DATABASE_URL", "sqlite:///./test.db")
@@ -16,9 +16,11 @@ class Settings(BaseSettings):
     SPOTIFY_CLIENT_ID: str | None = None
     SPOTIFY_CLIENT_SECRET: str | None = None
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 settings = Settings()
