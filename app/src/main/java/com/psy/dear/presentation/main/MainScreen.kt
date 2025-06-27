@@ -78,8 +78,8 @@ fun MainScreen(rootNavController: NavHostController) {
                     }
                 )
             }
-            composable(Screen.Growth.route) { GrowthScreen(navController = mainNavController) }
-            composable(Screen.Services.route) { ServicesScreen(navController = mainNavController) }
+            composable(Screen.Growth.route) { GrowthScreen() }
+            composable(Screen.Services.route) { ServicesScreen() }
             composable(Screen.Profile.route) { ProfileScreen(navController = mainNavController) }
 
             composable(Screen.JournalEditor.route) { JournalEditorScreen(navController = mainNavController) }
