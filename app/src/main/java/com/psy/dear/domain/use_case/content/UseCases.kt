@@ -21,7 +21,7 @@ class GetMoodMusicUseCase @Inject constructor(private val repo: ContentRepositor
 }
 
 class GetRecommendedMusicUseCase @Inject constructor(private val repo: ContentRepository) {
-    operator fun invoke(_: List<Journal>): Flow<List<AudioTrack>> {
+    operator fun invoke(journals: List<Journal>): Flow<List<AudioTrack>> {
         // Saat ini daftar jurnal belum digunakan di repository, namun disediakan
         // agar logika rekomendasi dapat memanfaatkannya di masa depan
         return repo.getRecommendedMusic()
