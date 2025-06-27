@@ -71,7 +71,6 @@ fun MainScreen(rootNavController: NavHostController) {
             composable(Screen.Home.route) { HomeScreen(navController = mainNavController) }
             composable(Screen.Chat.route) {
                 ChatScreen(
-                    navController = mainNavController,
                     onNavigateToLogin = {
                         rootNavController.navigate(Screen.Login.route) {
                             popUpTo(Screen.MainFlow.route) { inclusive = true }
