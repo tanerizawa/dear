@@ -1,4 +1,4 @@
-# backend/app/api/v1/music.py (Versi Final dengan Lokalisasi untuk Hasil Konsisten)
+# backend/app/api/v1/music.py (Versi Final dengan Logika VideoID)
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -14,67 +14,60 @@ from app.services.music_keyword_service import MusicKeywordService
 router = APIRouter()
 log = structlog.get_logger(__name__)
 
-# --- Blok Inisialisasi ---
+# --- Blok Inisialisasi (Sudah Benar dan Dipertahankan) ---
 OAUTH_PATH = Path(__file__).resolve().parent.parent.parent.parent / "oauth.json"
-AUTH_ARG = str(OAUTH_PATH) if OAUTH_PATH.exists() else None
-
 if not OAUTH_PATH.exists():
-    log.warning(
-        "Authentication file not found at %s. Running in unauthenticated mode.",
-        OAUTH_PATH,
+    raise FileNotFoundError(
+        f"Authentication file not found at {OAUTH_PATH}. "
+        "Please run 'ytmusicapi oauth' in your terminal in the 'backend' directory."
     )
 
-creds = None
-if settings.OAUTH_CLIENT_ID and settings.OAUTH_CLIENT_SECRET:
+if not settings.OAUTH_CLIENT_ID or not settings.OAUTH_CLIENT_SECRET:
+    raise ValueError(
+        "OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET must be set in your .env file."
+    )
+
+try:
     creds = OAuthCredentials(
         client_id=settings.OAUTH_CLIENT_ID,
         client_secret=settings.OAUTH_CLIENT_SECRET,
     )
-
-# --- PERBAIKAN FINAL DI SINI ---
-# Mengubah 'language' ke 'en' (English) yang didukung oleh library.
-# 'location' tetap 'ID' untuk memastikan hasil pencarian relevan dengan Indonesia.
-if creds:
     ytmusic = YTMusic(
-        AUTH_ARG,
+        str(OAUTH_PATH),
         oauth_credentials=creds,
         language='en',
         location='ID'
     )
-else:
-    ytmusic = YTMusic(
-        AUTH_ARG,
-        language='en',
-        location='ID'
-    )
-# --- Akhir Perbaikan ---
+    log.info("YTMusic berhasil diinisialisasi dengan otentikasi penuh.")
+except Exception as e:
+    log.error("Gagal menginisialisasi YTMusic. Periksa kredensial Anda.", error=str(e))
+    raise e
+# --- Akhir Blok Inisialisasi ---
 
+
+# --- PERBAIKAN LOGIKA FUNDAMENTAL DI SINI ---
 def _process_search_results(search_results: list) -> list[schemas.AudioTrack]:
-    """Helper function to process search results and return a list of AudioTrack."""
+    """
+    Helper function to process search results and return a list of AudioTrack.
+    Tugas fungsi ini HANYA untuk memformat hasil pencarian, BUKAN untuk mendapatkan URL stream.
+    """
     musics: list[schemas.AudioTrack] = []
+    if not search_results:
+        return musics
+
     for idx, track in enumerate(search_results, start=1):
         video_id = track.get("videoId")
         title = track.get("title")
-        if not video_id or not title:
-            continue
 
-        try:
-            song = ytmusic.get_song(video_id)
-            formats = song.get("streamingData", {}).get("adaptiveFormats", [])
-            audio_format = next(
-                (f for f in formats if f.get("mimeType", "").startswith("audio/")),
-                None,
-            )
-            streaming_url = audio_format.get("url") if audio_format else None
-        except Exception as e:
-            log.error("ytmusic_error", video_id=video_id, error=str(e))
-            streaming_url = None
+        # Kita hanya butuh videoId dan title. URL akan dibuat di sisi klien.
+        if video_id and title:
+            # Mengirim videoId sebagai 'url' untuk sementara, klien akan menanganinya.
+            # Atau klien bisa langsung menggunakan field 'videoId' jika modelnya diubah.
+            # Untuk kompatibilitas, kita akan tetap mengisi field 'url' dengan videoId.
+            musics.append(schemas.AudioTrack(id=idx, title=title, url=video_id))
 
-        if not streaming_url:
-            streaming_url = f"https://www.youtube.com/watch?v={video_id}"
-
-        musics.append(schemas.AudioTrack(id=idx, title=title, url=streaming_url))
     return musics
+# --- AKHIR PERBAIKAN ---
 
 
 @router.get("/", response_model=list[schemas.AudioTrack])
@@ -106,7 +99,7 @@ async def recommend_music(
     keyword_service: MusicKeywordService = Depends(),
 ):
     journals = crud.journal.get_multi_by_owner(
-        db=db, owner_id=current_user.id, limit=5
+        db=db, owner_id=current_user.id, limit=5, order_by="created_at desc"
     )
 
     musics = []
