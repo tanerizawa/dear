@@ -68,10 +68,12 @@ def _process_search_results(search_results: list) -> list[schemas.AudioTrack]:
             streaming_url = audio_format.get("url") if audio_format else None
         except Exception as e:
             log.error("ytmusic_error", video_id=video_id, error=str(e))
-            continue
+            streaming_url = None
 
-        if streaming_url:
-            musics.append(schemas.AudioTrack(id=idx, title=title, url=streaming_url))
+        if not streaming_url:
+            streaming_url = f"https://www.youtube.com/watch?v={video_id}"
+
+        musics.append(schemas.AudioTrack(id=idx, title=title, url=streaming_url))
     return musics
 
 
