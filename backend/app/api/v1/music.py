@@ -14,7 +14,7 @@ from app.services.music_keyword_service import MusicKeywordService
 router = APIRouter()
 log = structlog.get_logger(__name__)
 
-# --- Blok Inisialisasi (Sudah Benar dan Dipertahankan) ---
+# --- Blok Inisialisasi yang Diperkuat (Sudah Benar) ---
 OAUTH_PATH = Path(__file__).resolve().parent.parent.parent.parent / "oauth.json"
 if not OAUTH_PATH.exists():
     raise FileNotFoundError(

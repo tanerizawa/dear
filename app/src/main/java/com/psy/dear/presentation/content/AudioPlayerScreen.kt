@@ -1,6 +1,5 @@
 package com.psy.dear.presentation.content
 
-import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,10 +15,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.options.IFramePlayerOptions
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import com.psy.dear.presentation.home.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,7 +34,7 @@ import com.psy.dear.presentation.home.HomeViewModel
 fun AudioPlayerScreen(
     navController: NavController,
     trackTitle: String,
-    trackUrl: String,
+    trackUrl: String, // Ini sekarang berisi videoId
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by homeViewModel.state.collectAsState()
@@ -35,49 +42,17 @@ fun AudioPlayerScreen(
     var currentIndex by remember(tracks, trackUrl) {
         mutableStateOf(tracks.indexOfFirst { it.url == trackUrl }.takeIf { it >= 0 } ?: 0)
     }
+    val currentTrack = tracks.getOrNull(currentIndex)
 
-    var isPlaying by remember { mutableStateOf(false) }
-    val mediaPlayer = remember { MediaPlayer() }
+    var isPlaying by remember { mutableStateOf(true) }
+    var player: YouTubePlayer? by remember { mutableStateOf(null) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    DisposableEffect(currentIndex, tracks) {
-        val track = tracks.getOrNull(currentIndex)
-        if (track != null) {
-            try {
-                mediaPlayer.reset()
-
-                // Set listeners sebelum prepareAsync()
-                mediaPlayer.setOnPreparedListener { mp ->
-                    mp.start()
-                    isPlaying = true
-                }
-
-                mediaPlayer.setOnErrorListener { mp, what, extra ->
-                    Log.e("MediaPlayer", "Error what: $what, extra: $extra")
-                    mp.reset()
-                    isPlaying = false
-                    true // menandakan error sudah ditangani
-                }
-
-                mediaPlayer.setOnCompletionListener {
-                    if (tracks.isNotEmpty()) {
-                        currentIndex = (currentIndex + 1) % tracks.size
-                        isPlaying = false
-                    }
-                }
-
-                mediaPlayer.setDataSource(track.url)
-                mediaPlayer.prepareAsync()
-
-            } catch (e: Exception) {
-                Log.e("MediaPlayer", "Error setting data source", e)
-            }
+    // Memuat ulang video ketika currentIndex berubah
+    LaunchedEffect(currentIndex, player) {
+        currentTrack?.let {
+            player?.loadVideo(it.url, 0f)
         }
-
-        onDispose { }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { mediaPlayer.release() }
     }
 
     Scaffold(
@@ -100,33 +75,74 @@ fun AudioPlayerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box(
+            // Gunakan AndroidView untuk menampung YouTubePlayerView
+            AndroidView(
                 modifier = Modifier
-                    .size(250.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.secondaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                // Placeholder ikon musik
-            }
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                factory = { context ->
+                    // PERBAIKAN: Buat instance YouTubePlayerView tanpa inisialisasi otomatis
+                    // dengan menambahkan parameter kedua di konstruktor.
+                    YouTubePlayerView(context).apply {
+                        // Hapus baris ini untuk mencegah inisialisasi ganda
+                        // lifecycleOwner.lifecycle.addObserver(this)
+
+                        val listener = object : AbstractYouTubePlayerListener() {
+                            override fun onReady(youTubePlayer: YouTubePlayer) {
+                                player = youTubePlayer
+                                currentTrack?.let {
+                                    youTubePlayer.loadVideo(it.url, 0f)
+                                }
+                            }
+
+                            override fun onStateChange(
+                                youTubePlayer: YouTubePlayer,
+                                state: com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState
+                            ) {
+                                isPlaying = state == com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.PLAYING
+                                // Otomatis putar lagu berikutnya saat lagu selesai
+                                if (state == com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState.ENDED) {
+                                    if (tracks.isNotEmpty()) {
+                                        currentIndex = (currentIndex + 1) % tracks.size
+                                    }
+                                }
+                            }
+
+                            override fun onError(
+                                youTubePlayer: YouTubePlayer,
+                                error: com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerError
+                            ) {
+                                Log.e("YouTubePlayer", "Error: $error")
+                            }
+                        }
+
+                        // Opsi untuk menyembunyikan UI video dan hanya memutar audio
+                        val options = IFramePlayerOptions.Builder().controls(0).build()
+
+                        // Inisialisasi pemutar secara manual dengan listener dan opsi
+                        initialize(listener, options)
+                    }
+                }
+            )
 
             Spacer(Modifier.height(32.dp))
 
             Text(
-                text = tracks.getOrNull(currentIndex)?.title ?: trackTitle,
+                text = currentTrack?.title ?: trackTitle,
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Artis Tidak Dikenal",
+                text = "Rekomendasi YouTube", // Teks placeholder yang lebih baik
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(Modifier.height(24.dp))
 
-            Slider(value = 0.5f, onValueChange = {}) // Placeholder SeekBar
-
+            // Kontrol Pemutar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -135,19 +151,16 @@ fun AudioPlayerScreen(
                 IconButton(onClick = {
                     if (tracks.isNotEmpty()) {
                         currentIndex = if (currentIndex - 1 < 0) tracks.size - 1 else currentIndex - 1
-                        isPlaying = true
                     }
                 }) {
                     Icon(Icons.Default.SkipPrevious, contentDescription = "Sebelumnya", modifier = Modifier.size(48.dp))
                 }
 
                 IconButton(onClick = {
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.pause()
-                        isPlaying = false
+                    if (isPlaying) {
+                        player?.pause()
                     } else {
-                        mediaPlayer.start()
-                        isPlaying = true
+                        player?.play()
                     }
                 }, modifier = Modifier.size(72.dp)) {
                     Icon(
@@ -160,7 +173,6 @@ fun AudioPlayerScreen(
                 IconButton(onClick = {
                     if (tracks.isNotEmpty()) {
                         currentIndex = (currentIndex + 1) % tracks.size
-                        isPlaying = true
                     }
                 }) {
                     Icon(Icons.Default.SkipNext, contentDescription = "Berikutnya", modifier = Modifier.size(48.dp))
