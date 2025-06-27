@@ -36,9 +36,11 @@ fun AudioPlayerScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val state by homeViewModel.state.collectAsState()
-    val tracks = state.audio + state.recommendedTracks
-    var currentIndex by remember(tracks, trackUrl) {
-        mutableStateOf(tracks.indexOfFirst { it.url == trackUrl }.takeIf { it >= 0 } ?: 0)
+    val tracks = remember(state.audio, state.recommendedTracks) {
+        state.audio + state.recommendedTracks
+    }
+    var currentIndex by remember(trackUrl) {
+        mutableStateOf(tracks.indexOfFirst { it.url == trackUrl }.coerceAtLeast(0))
     }
     val currentTrack = tracks.getOrNull(currentIndex)
 
